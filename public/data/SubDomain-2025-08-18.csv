@@ -1,0 +1,29 @@
+id,name,code,description,domain
+125,Semen,,,11
+124,Seeds,,,11
+123,Import Value (Crops),IV,Import value of crops being imported,43
+122,Import Quantity (Crops),IQ,Import Quantity (Crops),43
+121,Crops Processed,CR,Crops Processed,1
+120,Semen Supply,SS,Semen Supply,11
+119,Semen (Farmers Uptake),SF,Semen (Farmers Uptake),11
+118,Percentage Contribution to GDP,PC,Percentage Contribution to GDP,47
+117,Share of GDP,SG,Share of GDP,47
+116,Population Growth,PG,Population Growth,46
+115,Population Size,PS,Population Size,46
+114,Wasting,WS,Wasting,39
+113,Underweight,UW,Underweight,39
+112,Stunting,ST,Stunting,39
+111,Export Quantity (Crops),EQ,Export Quantity (Crops),43
+110,Wholesale Prices,WP,Wholesale Prices,44
+97,Production Quantity (Fisheries),PQ,Production Quantity,36
+95,Interest Rates,IR,Interest Rates,38
+94,Annual Inflation,AI,Annual Inflation,38
+93,Gross Domestic Product,GD,Gross Domestic Product,38
+92,Livestock Products,LR,Livestock Products,28
+90,Forest Area,FA,Forest Area,37
+88,Development Flow in Agriculture,DF,Development Flow in Agriculture,38
+73,Livestock Primary,LP,Livestock Primary,28
+71,Seeds and Seedlings,SD,Seeds and Seedlings,11
+26,"Power (Electricity, Nonrenewable, Renewables)",PW,"Power (Electricity, Nonrenewable, Renewables)",11
+16,Fertilizer,FT,Fertilizer,11
+1,Crops Primary,CP,Crops Primary,1

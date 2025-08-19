@@ -1,0 +1,38 @@
+id,abbr,slug,description,created,updated
+37,FMHB,fhmb,Farm Management Handbook,2023-01-17 05:52:33,2023-01-17 05:52:33
+36,USAID,usaid,United States Agency for International Development,2023-01-17 04:24:52,2023-01-17 04:24:52
+35,KAMIS,kamis,Kenya Agricultural Market Information System,2023-01-17 04:24:52,2023-01-17 04:24:52
+34,Ton/Ha,tonha,Tonnes per hectare,2023-01-17 04:24:52,2023-01-17 04:24:52
+33,Ha,ha,Hectare,2023-01-17 04:24:52,2023-01-17 04:24:52
+32,Ksh,ksh,Kenya Shillings,2023-01-17 04:24:52,2023-01-17 04:24:52
+31,MT,mt,Metric Tonnes,2023-01-17 04:24:52,2023-01-17 04:24:52
+30,GVT,gvt,Government,2023-01-17 04:24:52,2023-01-17 04:24:52
+29,CAN,can,Calcium Ammonium Nitrate,2023-01-17 04:24:52,2023-01-17 04:24:52
+28,DAP,dap,Diammonium Phosphate,2023-01-17 04:24:52,2023-01-17 04:24:52
+27,NPK,npk,"Nitrogen, Phosphorus, and Potassium",2023-01-17 04:24:52,2023-01-17 04:24:52
+26,GDP,gdp,Gross Domestic Product,2023-01-17 04:24:52,2023-01-17 04:24:52
+25,ODA,oda,Official Development Assistance,2023-01-17 04:24:52,2023-01-17 04:24:52
+24,KG,kg,Kilogram,2023-01-17 04:24:52,2023-01-17 04:24:52
+23,CSV,csv,Comma Separated Values,2023-01-17 04:24:52,2023-01-17 04:24:52
+22,API,api,Application Programming Interface,2023-01-17 04:24:52,2023-01-17 04:24:52
+21,URL,url,Uniform Resource Locator,2023-01-17 04:24:52,2023-01-17 04:24:52
+20,KPHC,kphc,Kenya Population and Housing Survey,2023-01-17 04:24:52,2023-01-17 04:24:52
+19,UN,un,United Nations,2023-01-17 04:24:52,2023-01-17 04:24:52
+18,RCMRD,rcmrd,Regional Centre for Mapping of Resources for Development,2023-01-17 04:24:52,2023-01-17 04:24:52
+17,KNBS,knbs,The Kenya National Bureau of Statistics,2023-01-17 04:24:52,2023-01-17 04:24:52
+16,KMD,kmd,Kenya Meteorological Department,2023-01-17 04:24:52,2023-01-17 04:24:52
+15,KMC,kmc,Kenya Meat Commission,2023-01-17 04:24:52,2023-01-17 04:24:52
+14,KDB,kdb,Kenya Dairy Board,2023-01-17 04:24:52,2023-01-17 04:24:52
+13,KEPHIS,kephis,Kenya Plant Health Inspectorate Service,2023-01-17 04:24:52,2023-01-17 04:24:52
+12,KCSAP,kcsap,Kenya Climate Smart Agriculture Project,2023-01-17 04:24:52,2023-01-17 04:24:52
+11,NDMA,ndma,National Drought Management Authority,2023-01-17 04:24:52,2023-01-17 04:24:52
+10,GIZ,giz,Deutsche Gesellschaft für Internationale Zusammenarbeit GmbH,2023-01-17 04:24:52,2023-01-17 04:24:52
+9,FAQ,faq,Frequently Asked Questions,2023-01-17 04:24:52,2023-01-17 04:24:52
+8,EAC,eac,East African Community,2023-01-17 04:24:52,2023-01-17 04:24:52
+7,CAADP,caadp,Comprehensive African Agricultural Development Programme,2023-01-17 04:24:52,2023-01-17 04:24:52
+6,AU,au,African Union,2023-01-17 04:24:52,2023-01-17 04:24:52
+5,AFA,afa,Agriculture and Food Authority,2023-01-17 04:24:52,2023-01-17 04:24:52
+4,AEZ,aez,Agro-Ecological Zone,2023-01-17 04:24:52,2023-01-17 04:24:52
+3,FAO,fao,Food and Agriculture Organization of the United Nations,2023-01-17 04:24:52,2023-01-17 04:24:52
+2,KALRO,kalro,Kenya Agricultural and Livestock Research Organization,2023-01-17 04:24:52,2023-01-17 04:24:52
+1,MoALD,moald,Ministry of Agriculture and Livestock Development,2023-01-17 04:24:52,2023-01-17 04:24:52

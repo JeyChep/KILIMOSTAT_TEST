@@ -1,0 +1,14 @@
+id,name,code,description,subsector
+48,Primary Supply,,,
+47,Macro Economic Indicators,ME,Macro Economic Indicators,5
+46,Population,PP,Population,9
+44,Market Prices (Commodities),MP,Market prices  fro commodities,7
+43,Trade (Primary Supply),TP,Primary supply from trading,6
+39,Nutrition,NT,Nutrition,8
+38,Economic Performance,EP,Economic Performance,5
+37,Land,LN,Land,4
+36,Fisheries Productivity,FP,Fisheries Productivity,3
+28,Livestock Productivity,LP,Livestock Productivity,2
+13,Direct Foreign Investments,DF,Direct Foreign Investments,5
+11,Inputs,IN,Inputs,4
+1,Crops Productivity,CP,Crops Productivity,1

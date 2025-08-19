@@ -1,0 +1,60 @@
+id,name,code,description,subdomain
+122,Quantity of Fertilizer Used (Apparent Consumption),,,16
+121,GoK Fertilizer Subsidy,,,16
+120,Local Semen - KAGR,,,119
+119,Production Value,,,1
+118,Cane Deliveries,,,1
+117,Quantity of Imported Seeds,QI,Quantity of Imported Seeds,71
+116,"Cost, Insurance and Freight (CIF) Value",CI,"Cost, Insurance and Freight (CIF) Value",123
+115,Crops Primary,CY,Crops Primary,122
+112,Production Quantity (Processed Crops),PT,Production Quantity,121
+111,Local Production-KAGRC,LK,Local Production-KAGRC,120
+110,Local Production-ADC,LP,Local Production-ADC,120
+109,Imports,IM,Imports,120
+108,FarmersUptake,FU,FarmersUptake,119
+107,Local Semen - ADC,LS,Local Semen - ADC,119
+106,Imported semen,IS,Imported semen,119
+105,GDP Livestock,GV,GDP Livestock,118
+104,GDP Forestry,GO,GDP Forestry,118
+103,GDP Fisheries,GI,GDP Fisheries,118
+102,GDP Crops,GC,GDP Crops,118
+101,GDP Agriculture Services,GAST,GDP Agriculture Services,118
+100,GDP Agriculture,GA,GDP Agriculture,118
+99,GDP Livestock,GL,GDP Livestock,117
+98,GDP Forestry,GS,GDP Forestry,117
+97,GDP Fisheries,GP,GDP Fisheries,117
+96,GDP Crops,GE,GDP Crops,117
+95,GDP Agriculture Services,GAS,GDP Agriculture Services,117
+94,GDP Agriculture,GD,GDP Agriculture,117
+69,Population Growth Rate,PG,Population Growth Rate,116
+68,Population (Count),PC,Population (Count),115
+67,Children Under 5 (Wasting),CUW,Children Under 5 (Wasting),114
+66,Children Under 5 (Underweight),CUU,Children Under 5 (Underweight),113
+65,Children Under 5 (Stunting),CU,Children Under 5 (Stunting),112
+64,Crops Processed (Trade),CRT,Crops Processed (Trade),111
+63,Crops Primary (Trade),CPT,Crops Primary (Trade),111
+62,Average Monthly Prices,AM,Average Monthly Prices,110
+61,Molluscs,M,Molluscs,97
+60,Marine Fish,MF,Marine Fish,97
+59,Fresh Water Fish,FW,Fresh Water Fish,97
+58,Crustecea,CR,Crustecea,97
+56,Quantity of Government Procured Fertilizer,QOG,Quantity of Government Procured Fertilizer,16
+55,Quantity of Seeds Received,QOS,Quantity of Seeds Received,71
+51,Growth Rate,GR,Growth Rate,93
+38,Subsidized Fertilizer Quantity,SF,Subsidized Fertilizer Quantity,16
+37,Inflation Rate,IR,Inflation Rate,94
+35,GDP Contribution,GCB,GDP Contribution,93
+34,Commercial Banks Weighted Average Interest Rates,CBW,Commercial Banks Weighted Average Interest Rates,95
+33,Central Bank of Kenya,CB,Central Bank of Kenya,95
+32,Gazetted Forest Area,GF,Gazetted Forest Area,90
+30,Private Sector,PS,Private Sector,88
+29,Fertilizer Apparent Consumption,FA,Fertilizer Apparent Consumption,16
+28,Kenya ODA,KO,Kenya ODA,88
+20,Community Forest Area,CF,Community Forest Area,90
+14,Quantity of Locally Produced Seeds,Qo,Quantity of Locally Produced Seeds,71
+10,Seed Primary,SP,Seed Primary,71
+6,Livestock Population,PP,Population,73
+4,Production Quantity (Livestock),PQT,Production Quantity,92
+3,Crop Yield,YD,Yield,1
+2,Production Quantity (Crops),PQ,Production Quantity,1
+1,Crop Area,CA,Crop Area,1

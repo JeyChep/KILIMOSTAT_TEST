@@ -1,0 +1,156 @@
+id,name,code,description,element,itemcategory,periodicity
+2055,Maize (Quantity of Imported Seeds),,,117,5,Yearly
+2054,Wheat (Quantity of Imported Seeds),,,117,5,Yearly
+2053,Tomato (Quantity of Imported Seeds),,,117,5,Yearly
+2052,Barley (Quantity of Imported Seeds),,,117,5,Yearly
+2051,Sunflower (Quantity of Imported Seeds),,,117,5,Yearly
+2050,Carrot (Quantity of Imported Seeds),,,117,5,Yearly
+2049,Cucumber (Quantity of Imported Seeds),,,117,5,Yearly
+2048,Watermelon (Quantity of Imported Seeds),,,117,5,Yearly
+2047,Pepper (Quantity of Imported Seeds),,,117,5,Yearly
+2046,Bulb Onion (Quantity of Imported Seeds),,,117,5,Yearly
+2045,Okra (Quantity of Imported Seeds),,,117,5,Yearly
+2044,Avocado (Production Value),,,,,
+2043,Mango (Production Value),,,119,5,Yearly
+2042,Garden Peas (Production Value),,,119,5,Yearly
+2041,African Birds Eye (Production Value),,,119,5,Yearly
+2040,African Birds Eye (Crop Area),,,1,5,Yearly
+2039,African Birds Eye (Production Quantity),,,2,5,Yearly
+2037,Garden Peas (Crop Area),,,1,5,Yearly
+2036,Garden Peas (Yield),,,3,5,Yearly
+2035,Garden Peas (Production Quantity),,,2,5,Yearly
+2034,Pearl Millet (Yield),,,3,5,Yearly
+2033,Pearl Millet (Production Quantity),,,2,5,Yearly
+2032,Pearl Millet (Crop Area),,,1,5,Yearly
+2031,Processed Tea,,,112,5,Yearly
+2030,Sugar,,,112,5,Yearly
+2029,West Cane Deliveries,,,118,5,Yearly
+2028,Transmara Cane Deliveries,,,118,5,Yearly
+2027,Sukari Cane Deliveries,,,118,5,Yearly
+2026,South Cane Deliveries,,,118,5,Yearly
+2025,Soin Cane Deliveries,,,118,5,Yearly
+2024,Olepito Cane Deliveries,,,118,5,Yearly
+2023,Nzoia Cane Deliveries,,,118,5,Yearly
+2022,Mumias Cane Deliveries,,,118,5,Yearly
+2021,Muhoroni Cane Deliveries,,,118,5,Yearly
+2020,Kwale Cane Deliveries,,,118,5,Yearly
+2019,Kibos Cane Deliveries,,,118,5,Yearly
+2018,Chemelil Cane Deliveries,,,118,5,Yearly
+2017,Butali Cane Deliveries,,,118,5,Yearly
+2016,Busia Cane Deliveries,,,118,5,Yearly
+2015,Chemelil Cane Deliveries,,,118,5,Yearly
+2014,Skins,,,4,,Yearly
+2013,Hides,,,4,,Yearly
+2012,Eggs,,,4,,Yearly
+2011,Wax,,,4,,Yearly
+2010,Honey,,,4,,Yearly
+2009,Camel Meat,,,4,,Yearly
+2008,Poultry Meat,,,4,,Yearly
+2007,Rabbit Meat,,,4,,Yearly
+2006,Mutton,,,4,,Yearly
+2005,Chevon (Goat Meat),,,4,,Yearly
+2004,Wool,,,4,,Yearly
+2003,Beef,,,4,,Yearly
+2002,Dairy Milk,,,4,,Yearly
+2001,Wheat (Crop Area),,,1,5,Yearly
+2000,Sweet Potatoes (Crop Area),,,1,5,Yearly
+1999,Sunflower (Crop Area),,,1,5,Yearly
+1998,Sorghum (Crop Area),,,1,5,Yearly
+1997,Rice (Crop Area),,,1,5,Yearly
+1996,Common Beans (Crop Area),,,1,5,Yearly
+1995,Common Beans (Production Quantity),,,2,5,Yearly
+1994,Common Beans (Yield),,,3,5,Yearly
+1993,Cassava (Crop Area),,,1,5,Yearly
+1992,Cassava (Production Quantity),,,2,5,Yearly
+1991,Cassava Yield),,,3,5,Yearly
+1990,Cowpea (Crop Area),,,1,5,Yearly
+1989,Cowpea (Production Quantity),,,2,5,Yearly
+1988,Cowpea (Yield),,,3,5,Yearly
+1987,Finger Millet (Crop Area),,,1,5,Yearly
+1986,Finger Millet (Production Quantity),,,2,5,Yearly
+1985,Finger Millet (Yield),,,3,5,Yearly
+1984,Green Grams (Crop Area),,,1,5,Yearly
+1983,Green Grams (Production Quantity),,,2,5,Yearly
+1982,Green Grams (Yield),,,3,5,Yearly
+1981,Irish Potatoes (Crop Area),,,1,5,Yearly
+1980,Irish Potatoes (Production Quantity),,,2,5,Yearly
+1979,Irish Potatoes (Yield),,,3,5,Yearly
+1978,Pigeon Peas (Crop Area),,,1,5,Yearly
+1977,Pigeon Peas (Production Quantity),,,2,5,Yearly
+1976,Pigeon Peas (Yield),,,3,5,Yearly
+1975,Wheat  (Production Quantity),,,2,5,Yearly
+1974,Sweet Potatoes  (Production Quantity),,,2,5,Yearly
+1973,Sunflower  (Production Quantity),,,2,5,Yearly
+1972,Sorghum  (Production Quantity),,,2,5,Yearly
+1971,Rice (Production Quantity),,,2,5,Yearly
+1970,Wheat  (Yield),,,3,5,Yearly
+1969,Sweet Potatoes (Yield),,,3,5,Yearly
+1968,Sunflower (Yield),,,3,5,Yearly
+1967,Sorghum (Yield),,,3,5,Yearly
+1966,Rice (Yield),,Rice (Yield),3,5,Yearly
+1965,Maize (Crop Area),MCA,Maize Crop Area,1,5,Yearly
+1964,Maize (Production Quantity),MPD,Maize Production Quantity,2,5,Yearly
+1963,Maize (Yield),MYD,Maize Yield,3,5,Yearly
+1962,Unspecified Marine Fish,FSUNS,Unspecified Marine Fish,60,6,Yearly
+1961,Unspecified Fresh Water Fish,FFWF,Unspecified Fresh Water Fish,59,6,Yearly
+1960,Trout,FSTRO,Trout,59,6,Yearly
+1959,Tilapia others,FSTIL,Tilapia others,59,6,
+1958,Tilapia niloticus,FSTNI,Tilapia niloticus,59,6,Yearly
+1957,Synodontis,FSSYN,Synodontis,59,6,Yearly
+1956,Squids,FSSQU,Squids,61,6,Yearly
+1955,Shark/Rays,FSSHA,Shark/Rays,60,6,Yearly
+1954,Sardines,FSSAR,Sardines,60,6,Yearly
+1953,Rastreonobola,FSRAS,Rastreonobola,59,6,Yearly
+1952,Protopterus,FSPRO,Protopterus,59,6,Yearly
+1951,Prawns,FSPRA,Prawns,58,6,Yearly
+1950,Pelagics,FSPEL,Pelagics,60,6,Yearly
+1949,Oysters,FSOYS,Oysters,61,6,Yearly
+1948,Other Molluscs,FSOTH,Other Molluscs,61,6,Yearly
+1947,Other Crustecea,FCRUS,Other Crustecea,58,6,Yearly
+1946,Octopus,FSOCT,Octopus,61,6,Yearly
+1945,Momyrus,FSMOM,Momyrus,59,6,Yearly
+1944,Lobster,FSLOB,Lobster,58,6,Yearly
+1943,Lates niloticus,FSLAT,Lates niloticus,59,6,Yearly
+1942,Labeo,FSLAB,Labeo,59,6,Yearly
+1941,Hydrocinus,FSHYD,Hydrocinus,59,6,Yearly
+1940,Haplochromis,FSHAP,Haplochromis,59,6,Yearly
+1939,Eels,FSEEL,Eels,59,6,Yearly
+1938,Distichodus niloticus,FSDIS,Distichodus niloticus,59,6,Yearly
+1937,Dermersals,FSDER,Dermersals,60,6,Yearly
+1936,Crabs,FSCRA,crabs,58,6,Yearly
+1935,Clarias,FSCLA,Clarias,59,6,Yearly
+1934,Citharinus,FSCIT,Citharinus,,6,
+1933,Carps,FSCAR,Carps,,6,
+1932,Black bass,FSBLA,Black bass,,6,
+1931,Beche-de-mers,FSBEC,Beche-de-mers,,6,
+1930,Barbus,FSBAR,Barbus,,6,
+1929,Bagrus,FSBAG,Bagrus,,6,
+1928,Alestes,FSALE,Alestes,,6,
+1892,Sheep (Wool),SWL,Sheep (Wool),6,4,Yearly
+1891,Rabbits,RAB,Rabbits,6,4,Yearly
+1890,Poultry (Turkey),PTR,Poultry (Turkey),6,4,Yearly
+1889,Poultry (Quails),PQL,Poultry (Quails),6,4,Yearly
+1888,Poultry (Pigeons),PPG,Poultry (Pigeons),6,4,Yearly
+1887,Poultry (Ostrich),POS,Poultry (Ostrich),6,4,Yearly
+1886,Poultry (Indigenous Chicken),PIC,Poultry (Indigenous Chicken),6,4,Yearly
+1885,Poultry (Improved Indegenious Chicken),PIIC,Poultry (Improved Indegenious Chicken),6,4,Yearly
+1884,Poultry (Guinea Fowl),PGF,Poultry (Guinea Fowl),6,4,Yearly
+1883,Poultry (Geese),PGS,Poultry (Geese),6,4,Yearly
+1882,Poultry (Ducks),PDC,Poultry (Ducks),6,4,Yearly
+1881,Poultry (Doves),PDV,Poultry (Doves),6,4,Yearly
+1880,Poultry (Chicken Layers),PCL,Poultry (Chicken Layers),6,4,Yearly
+1879,Poultry (Chicken Broilers),PCB,Poultry (Chicken Broilers),6,4,Yearly
+1878,Pigs,PIG,Pigs,6,4,Yearly
+1877,Horse,HOR,Horse,6,4,Yearly
+1876,Sheep (Hair),SHH,Sheep (Hair),6,4,Yearly
+1875,Goats (Meat),GOAM,Goats (Meat),6,4,Yearly
+1874,Goats (Dairy),GOAD,Goats (Dairy),6,4,Yearly
+1873,Donkeys,DONK,Donkeys,6,4,Yearly
+1872,Crocodile,CROC,Crocodile,6,4,Yearly
+1871,Cattle (Dairy),CDR,Cattle (Dairy),6,4,Yearly
+1870,Cattle (Beef),CBF,Cattle (Beef),6,4,Yearly
+1869,Camels,CML,Camels,6,4,Yearly
+1868,Apiculture (Traditional Log Hives),TLH,Apiculture (Traditional Log Hives),6,4,Yearly
+1867,Apiculture (Langstroth Hives),LH,Apiculture (Langstroth Hives),6,4,Yearly
+1866,Apiculture (KTBH Hives),KTBH,Apiculture (KTBH Hives),6,4,Yearly
+1838,Apiculture (Hives_Box),AHB,Apiculture (Hives_Box),6,4,Yearly
