@@ -2,6 +2,7 @@ import React, { useState, useCallback } from 'react';
 import Header from './components/Header';
 import DefinitionsStandards from './components/DefinitionsStandards';
 import DomainGrid from './components/DomainGrid';
+import DomainsTable from './components/DomainsTable';
 import DataTable from './components/DataTable';
 import SubsectorTabs from './components/SubsectorTabs';
 import { useDomains } from './hooks/useDomains';
@@ -81,6 +82,8 @@ function App() {
             loading={loading}
             onDomainClick={handleDomainClick}
           />
+        ) : activeTab === 'table' ? (
+          <DomainsTable />
         ) : (
           <DataTable
             domains={domains}
