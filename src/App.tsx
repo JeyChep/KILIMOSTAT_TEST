@@ -6,7 +6,7 @@ import DomainsTable from './components/DomainsTable';
 import DataTable from './components/DataTable';
 import SubsectorTabs from './components/SubsectorTabs';
 import { useDomains } from './hooks/useDomains';
-import { Domain } from './types';
+import { Domain } from './services/apiService';
 
 function App() {
   const { domains, loading, error, filters, updateFilters, exportDomains } = useDomains();
@@ -86,7 +86,7 @@ function App() {
           <DomainsTable />
         ) : (
           <DataTable
-            domains={domains}
+            domains={domains as any[]}
             loading={loading}
             onImport={handleImport}
             onExport={handleExport}

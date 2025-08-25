@@ -1,112 +1,70 @@
-import React, { useState } from 'react';
-import { ChevronDown, ChevronRight, ArrowLeft } from 'lucide-react';
-import { Domain } from '../types';
-
-interface DomainWithSubdomains extends Domain {
-  subdomains: any[];
-}
+import React, { useState, useEffect } from 'react';
+import { ChevronDown, ChevronRight, ArrowLeft, Download } from 'lucide-react';
+import { apiService, Domain, SubDomain, County, Element, Item, ItemCategory, Subsector } from '../services/apiService';
 
 interface DomainGridProps {
-  domains: Domain[];
   loading: boolean;
-  onDomainClick: (domain: Domain) => void;
+  onDomainClick?: (domain: Domain) => void;
 }
 
-const DomainGrid: React.FC<DomainGridProps> = ({ domains, loading, onDomainClick }) => {
+const DomainGrid: React.FC<DomainGridProps> = ({ loading: externalLoading, onDomainClick }) => {
+  const [domains, setDomains] = useState<Domain[]>([]);
+  const [subsectors, setSubsectors] = useState<Subsector[]>([]);
   const [expandedDomains, setExpandedDomains] = useState<Set<number>>(new Set());
-  const [selectedSubdomain, setSelectedSubdomain] = useState<any>(null);
-  const [domainsWithSubdomains, setDomainsWithSubdomains] = useState<DomainWithSubdomains[]>([]);
-  const [counties, setCounties] = useState<any[]>([]);
-  const [elements, setElements] = useState<any[]>([]);
-  const [items, setItems] = useState<any[]>([]);
-  const [itemCategories, setItemCategories] = useState<any[]>([]);
+  const [selectedSubdomain, setSelectedSubdomain] = useState<SubDomain | null>(null);
+  const [subdomains, setSubdomains] = useState<SubDomain[]>([]);
+  const [counties, setCounties] = useState<County[]>([]);
+  const [elements, setElements] = useState<Element[]>([]);
+  const [items, setItems] = useState<Item[]>([]);
+  const [itemCategories, setItemCategories] = useState<ItemCategory[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Selection states
   const [selectedCounties, setSelectedCounties] = useState<Set<number>>(new Set());
   const [selectedElements, setSelectedElements] = useState<Set<number>>(new Set());
   const [selectedItems, setSelectedItems] = useState<Set<number>>(new Set());
   const [selectedYears, setSelectedYears] = useState<Set<number>>(new Set());
 
-  React.useEffect(() => {
+  // Filter states
+  const [countryFilter, setCountryFilter] = useState('');
+  const [elementFilter, setElementFilter] = useState('');
+  const [itemFilter, setItemFilter] = useState('');
+  const [yearFilter, setYearFilter] = useState('');
+
+  useEffect(() => {
     const loadData = async () => {
       try {
-        // Load subdomains, counties, elements, items, and item categories
-        const [subdomainsResponse, countiesResponse, elementsResponse, itemsResponse, itemCategoriesResponse] = await Promise.all([
-          fetch('/data/SubDomain-2025-08-18.csv'),
-          fetch('/data/County-2025-08-18.csv'),
-          fetch('/data/Element-2025-08-14.csv'),
-          fetch('/data/Item-2025-08-14.csv'),
-          fetch('/data/ItemCategory-2025-08-14.csv')
+        setLoading(true);
+        setError(null);
+
+        const [domainsData, subsectorsData, subdomainsData, countiesData, elementsData, itemsData, itemCategoriesData] = await Promise.all([
+          apiService.getDomains(),
+          apiService.getSubsectors(),
+          apiService.getSubdomains(),
+          apiService.getCounties(),
+          apiService.getElements(),
+          apiService.getItems(),
+          apiService.getItemCategories()
         ]);
 
-        const [subdomainsText, countiesText, elementsText, itemsText, itemCategoriesText] = await Promise.all([
-          subdomainsResponse.text(),
-          countiesResponse.text(),
-          elementsResponse.text(),
-          itemsResponse.text(),
-          itemCategoriesResponse.text()
-        ]);
-
-        // Parse CSVs
-        const parseCSV = (text: string) => {
-          const lines = text.trim().split('\n');
-          const headers = lines[0].split(',');
-          return lines.slice(1).map(line => {
-            const values = parseCSVLine(line);
-            const obj: any = {};
-            headers.forEach((header, index) => {
-              obj[header] = values[index] || '';
-            });
-            return obj;
-          });
-        };
-
-        const subdomains = parseCSV(subdomainsText);
-        const countiesData = parseCSV(countiesText);
-        const elementsData = parseCSV(elementsText);
-        const itemsData = parseCSV(itemsText);
-        const itemCategoriesData = parseCSV(itemCategoriesText);
-
-        // Combine domains with subdomains
-        const domainsWithSubs = domains.map(domain => ({
-          ...domain,
-          subdomains: subdomains.filter((sub: any) => parseInt(sub.domain) === domain.id)
-        }));
-
-        setDomainsWithSubdomains(domainsWithSubs);
+        setDomains(domainsData);
+        setSubsectors(subsectorsData);
+        setSubdomains(subdomainsData);
         setCounties(countiesData);
         setElements(elementsData);
         setItems(itemsData);
         setItemCategories(itemCategoriesData);
-      } catch (error) {
-        console.error('Failed to load data:', error);
+      } catch (err) {
+        console.error('Failed to load data:', err);
+        setError(err instanceof Error ? err.message : 'Failed to load data');
+      } finally {
+        setLoading(false);
       }
     };
 
-    if (domains.length > 0) {
-      loadData();
-    }
-  }, [domains]);
-
-  const parseCSVLine = (line: string): string[] => {
-    const result = [];
-    let current = '';
-    let inQuotes = false;
-    
-    for (let i = 0; i < line.length; i++) {
-      const char = line[i];
-      
-      if (char === '"') {
-        inQuotes = !inQuotes;
-      } else if (char === ',' && !inQuotes) {
-        result.push(current.trim());
-        current = '';
-      } else {
-        current += char;
-      }
-    }
-    
-    result.push(current.trim());
-    return result;
-  };
+    loadData();
+  }, []);
 
   const toggleDomain = (domainId: number) => {
     const newExpanded = new Set(expandedDomains);
@@ -118,7 +76,7 @@ const DomainGrid: React.FC<DomainGridProps> = ({ domains, loading, onDomainClick
     setExpandedDomains(newExpanded);
   };
 
-  const handleSubdomainClick = (subdomain: any) => {
+  const handleSubdomainClick = (subdomain: SubDomain) => {
     setSelectedSubdomain(subdomain);
   };
 
@@ -151,6 +109,43 @@ const DomainGrid: React.FC<DomainGridProps> = ({ domains, loading, onDomainClick
     return '📊';
   };
 
+  const getSubsectorName = (subsectorId: number) => {
+    const subsector = subsectors.find(s => s.id === subsectorId);
+    return subsector?.name || 'Unknown';
+  };
+
+  const getSubdomainsByDomain = (domainId: number) => {
+    return subdomains.filter(subdomain => subdomain.domain === domainId);
+  };
+
+  const getFilteredCounties = () => {
+    return counties.filter(county =>
+      county.name.toLowerCase().includes(countryFilter.toLowerCase())
+    );
+  };
+
+  const getFilteredElements = () => {
+    if (!selectedSubdomain) return [];
+    const subdomainElements = elements.filter(element => element.subdomain === selectedSubdomain.id);
+    return subdomainElements.filter(element =>
+      element.name.toLowerCase().includes(elementFilter.toLowerCase())
+    );
+  };
+
+  const getFilteredItems = () => {
+    return items.filter(item =>
+      item.name.toLowerCase().includes(itemFilter.toLowerCase())
+    );
+  };
+
+  const getFilteredYears = () => {
+    const currentYear = new Date().getFullYear();
+    const years = Array.from({ length: 15 }, (_, i) => currentYear - i);
+    return years.filter(year =>
+      year.toString().includes(yearFilter)
+    );
+  };
+
   const toggleSelection = (id: number, selectedSet: Set<number>, setSelectedSet: React.Dispatch<React.SetStateAction<Set<number>>>) => {
     const newSet = new Set(selectedSet);
     if (newSet.has(id)) {
@@ -162,7 +157,7 @@ const DomainGrid: React.FC<DomainGridProps> = ({ domains, loading, onDomainClick
   };
 
   const selectAll = (items: any[], selectedSet: Set<number>, setSelectedSet: React.Dispatch<React.SetStateAction<Set<number>>>) => {
-    const allIds = items.map(item => parseInt(item.id));
+    const allIds = items.map(item => item.id);
     setSelectedSet(new Set(allIds));
   };
 
@@ -170,19 +165,31 @@ const DomainGrid: React.FC<DomainGridProps> = ({ domains, loading, onDomainClick
     setSelectedSet(new Set());
   };
 
-  if (loading) {
+  if (loading || externalLoading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {Array.from({ length: 6 }).map((_, i) => (
-          <div key={i} className="animate-pulse">
-            <div className="bg-gray-200 rounded-lg h-32"></div>
-          </div>
-        ))}
+      <div className="flex items-center justify-center py-12">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <span className="ml-2 text-gray-600">Loading domains...</span>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-center py-12">
+        <div className="text-red-500 text-4xl mb-4">⚠️</div>
+        <h3 className="text-lg font-medium text-gray-900 mb-2">Failed to load data</h3>
+        <p className="text-gray-600">{error}</p>
       </div>
     );
   }
 
   if (selectedSubdomain) {
+    const filteredCounties = getFilteredCounties();
+    const filteredElements = getFilteredElements();
+    const filteredItems = getFilteredItems();
+    const filteredYears = getFilteredYears();
+
     return (
       <div className="bg-white">
         {/* Header */}
@@ -232,16 +239,18 @@ const DomainGrid: React.FC<DomainGridProps> = ({ domains, loading, onDomainClick
                 <input
                   type="text"
                   placeholder="Filter results e.g. nairobi"
+                  value={countryFilter}
+                  onChange={(e) => setCountryFilter(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
                 />
               </div>
               <div className="max-h-48 overflow-y-auto space-y-2">
-                {counties.slice(0, 10).map((county) => (
+                {filteredCounties.slice(0, 10).map((county) => (
                   <label key={county.id} className="flex items-center space-x-2 cursor-pointer">
                     <input
                       type="checkbox"
-                      checked={selectedCounties.has(parseInt(county.id))}
-                      onChange={() => toggleSelection(parseInt(county.id), selectedCounties, setSelectedCounties)}
+                      checked={selectedCounties.has(county.id)}
+                      onChange={() => toggleSelection(county.id, selectedCounties, setSelectedCounties)}
                       className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                     />
                     <span className="text-sm text-gray-700">{county.name}</span>
@@ -250,7 +259,7 @@ const DomainGrid: React.FC<DomainGridProps> = ({ domains, loading, onDomainClick
               </div>
               <div className="flex justify-between mt-4 pt-3 border-t border-gray-200">
                 <button
-                  onClick={() => selectAll(counties, selectedCounties, setSelectedCounties)}
+                  onClick={() => selectAll(filteredCounties, selectedCounties, setSelectedCounties)}
                   className="text-sm text-blue-600 hover:text-blue-800"
                 >
                   Select All
@@ -275,16 +284,18 @@ const DomainGrid: React.FC<DomainGridProps> = ({ domains, loading, onDomainClick
                 <input
                   type="text"
                   placeholder="Filter results e.g. area harvested"
+                  value={elementFilter}
+                  onChange={(e) => setElementFilter(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
                 />
               </div>
               <div className="max-h-48 overflow-y-auto space-y-2">
-                {elements.slice(0, 8).map((element) => (
+                {filteredElements.slice(0, 8).map((element) => (
                   <label key={element.id} className="flex items-center space-x-2 cursor-pointer">
                     <input
                       type="checkbox"
-                      checked={selectedElements.has(parseInt(element.id))}
-                      onChange={() => toggleSelection(parseInt(element.id), selectedElements, setSelectedElements)}
+                      checked={selectedElements.has(element.id)}
+                      onChange={() => toggleSelection(element.id, selectedElements, setSelectedElements)}
                       className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                     />
                     <span className="text-sm text-gray-700">{element.name}</span>
@@ -293,7 +304,7 @@ const DomainGrid: React.FC<DomainGridProps> = ({ domains, loading, onDomainClick
               </div>
               <div className="flex justify-between mt-4 pt-3 border-t border-gray-200">
                 <button
-                  onClick={() => selectAll(elements, selectedElements, setSelectedElements)}
+                  onClick={() => selectAll(filteredElements, selectedElements, setSelectedElements)}
                   className="text-sm text-blue-600 hover:text-blue-800"
                 >
                   Select All
@@ -320,7 +331,7 @@ const DomainGrid: React.FC<DomainGridProps> = ({ domains, loading, onDomainClick
 
             <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
               <h4 className="text-sm font-medium text-gray-900 mb-3 flex items-center">
-                <span className="mr-2">📥</span>
+                <Download className="h-4 w-4 mr-2" />
                 Bulk Downloads
               </h4>
               <div className="space-y-2">
@@ -361,6 +372,8 @@ const DomainGrid: React.FC<DomainGridProps> = ({ domains, loading, onDomainClick
                 <input
                   type="text"
                   placeholder="Filter results e.g. maize, wheat"
+                  value={itemFilter}
+                  onChange={(e) => setItemFilter(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
                 />
               </div>
@@ -389,11 +402,13 @@ const DomainGrid: React.FC<DomainGridProps> = ({ domains, loading, onDomainClick
                 <input
                   type="text"
                   placeholder="Filter results e.g. 2023"
+                  value={yearFilter}
+                  onChange={(e) => setYearFilter(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
                 />
               </div>
               <div className="max-h-48 overflow-y-auto space-y-2">
-                {[2023, 2022, 2021, 2020, 2019, 2018, 2017, 2016].map((year) => (
+                {filteredYears.map((year) => (
                   <label key={year} className="flex items-center space-x-2 cursor-pointer">
                     <input
                       type="checkbox"
@@ -406,8 +421,18 @@ const DomainGrid: React.FC<DomainGridProps> = ({ domains, loading, onDomainClick
                 ))}
               </div>
               <div className="flex justify-between mt-4 pt-3 border-t border-gray-200">
-                <button className="text-sm text-blue-600 hover:text-blue-800">Select All</button>
-                <button className="text-sm text-blue-600 hover:text-blue-800">Clear All</button>
+                <button
+                  onClick={() => selectAll(filteredYears.map(y => ({ id: y })), selectedYears, setSelectedYears)}
+                  className="text-sm text-blue-600 hover:text-blue-800"
+                >
+                  Select All
+                </button>
+                <button
+                  onClick={() => clearAll(setSelectedYears)}
+                  className="text-sm text-blue-600 hover:text-blue-800"
+                >
+                  Clear All
+                </button>
               </div>
             </div>
           </div>
@@ -416,7 +441,7 @@ const DomainGrid: React.FC<DomainGridProps> = ({ domains, loading, onDomainClick
     );
   }
 
-  if (domainsWithSubdomains.length === 0) {
+  if (domains.length === 0) {
     return (
       <div className="text-center py-12">
         <div className="text-gray-400 text-4xl mb-4">📊</div>
@@ -428,53 +453,56 @@ const DomainGrid: React.FC<DomainGridProps> = ({ domains, loading, onDomainClick
 
   return (
     <div className="space-y-4">
-      {domainsWithSubdomains.map((domain) => (
-        <div key={domain.id} className="bg-white border border-gray-200 rounded-lg">
-          <button
-            onClick={() => toggleDomain(domain.id)}
-            className="w-full px-6 py-4 text-left hover:bg-gray-50 transition-colors flex items-center justify-between"
-          >
-            <div className="flex items-center space-x-4">
-              {expandedDomains.has(domain.id) ? (
-                <ChevronDown className="h-5 w-5 text-gray-400" />
-              ) : (
-                <ChevronRight className="h-5 w-5 text-gray-400" />
-              )}
-              <div className="text-2xl">{getDomainIcon(domain.name)}</div>
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900">{domain.name}</h3>
-                <p className="text-sm text-gray-600">{domain.subsector}</p>
+      {domains.map((domain) => {
+        const domainSubdomains = getSubdomainsByDomain(domain.id);
+        return (
+          <div key={domain.id} className="bg-white border border-gray-200 rounded-lg">
+            <button
+              onClick={() => toggleDomain(domain.id)}
+              className="w-full px-6 py-4 text-left hover:bg-gray-50 transition-colors flex items-center justify-between"
+            >
+              <div className="flex items-center space-x-4">
+                {expandedDomains.has(domain.id) ? (
+                  <ChevronDown className="h-5 w-5 text-gray-400" />
+                ) : (
+                  <ChevronRight className="h-5 w-5 text-gray-400" />
+                )}
+                <div className="text-2xl">{getDomainIcon(domain.name)}</div>
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900">{domain.name}</h3>
+                  <p className="text-sm text-gray-600">{getSubsectorName(domain.subsector)}</p>
+                </div>
               </div>
-            </div>
-            <div className="text-sm text-gray-500">
-              {domain.subdomains.length} subdomains
-            </div>
-          </button>
+              <div className="text-sm text-gray-500">
+                {domainSubdomains.length} subdomains
+              </div>
+            </button>
 
-          {expandedDomains.has(domain.id) && (
-            <div className="px-6 pb-6 border-t border-gray-100">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
-                {domain.subdomains.map((subdomain) => (
-                  <button
-                    key={subdomain.id}
-                    onClick={() => handleSubdomainClick(subdomain)}
-                    className="text-left p-3 rounded-md hover:bg-blue-50 border border-gray-200 hover:border-blue-300 transition-colors"
-                  >
-                    <div className="text-blue-600 hover:text-blue-800 font-medium">
-                      {subdomain.name}
-                    </div>
-                    {subdomain.description && (
-                      <div className="text-sm text-gray-600 mt-1">
-                        {subdomain.description}
+            {expandedDomains.has(domain.id) && (
+              <div className="px-6 pb-6 border-t border-gray-100">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
+                  {domainSubdomains.map((subdomain) => (
+                    <button
+                      key={subdomain.id}
+                      onClick={() => handleSubdomainClick(subdomain)}
+                      className="text-left p-3 rounded-md hover:bg-blue-50 border border-gray-200 hover:border-blue-300 transition-colors"
+                    >
+                      <div className="text-blue-600 hover:text-blue-800 font-medium">
+                        {subdomain.name}
                       </div>
-                    )}
-                  </button>
-                ))}
+                      {subdomain.description && (
+                        <div className="text-sm text-gray-600 mt-1">
+                          {subdomain.description}
+                        </div>
+                      )}
+                    </button>
+                  ))}
+                </div>
               </div>
-            </div>
-          )}
-        </div>
-      ))}
+            )}
+          </div>
+        );
+      })}
     </div>
   );
 };
