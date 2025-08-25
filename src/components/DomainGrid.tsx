@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ChevronDown, ChevronRight, ArrowLeft, Download } from 'lucide-react';
-import { apiService, Domain, SubDomain, County, Element, Item, ItemCategory, Subsector } from '../services/apiService';
+import { apiService, Domain, SubDomain, County, Element, Item, ItemCategory, Subsector, DataExportOptions } from '../services/apiService';
+import DataViewer from './DataViewer';
 
 interface DomainGridProps {
   loading: boolean;
@@ -25,6 +26,20 @@ const DomainGrid: React.FC<DomainGridProps> = ({ loading: externalLoading, onDom
   const [selectedElements, setSelectedElements] = useState<Set<number>>(new Set());
   const [selectedItems, setSelectedItems] = useState<Set<number>>(new Set());
   const [selectedYears, setSelectedYears] = useState<Set<number>>(new Set());
+
+  // Output options
+  const [outputType, setOutputType] = useState<'table' | 'pivot'>('table');
+  const [fileType, setFileType] = useState<'csv' | 'xls'>('csv');
+  const [thousandSeparator, setThousandSeparator] = useState<'none' | 'comma' | 'period'>('none');
+  const [includeFlags, setIncludeFlags] = useState(true);
+  const [includeNotes, setIncludeNotes] = useState(true);
+  const [includeCodes, setIncludeCodes] = useState(true);
+  const [includeUnits, setIncludeUnits] = useState(true);
+  const [includeNullValues, setIncludeNullValues] = useState(false);
+
+  // Data viewer
+  const [showDataViewer, setShowDataViewer] = useState(false);
+  const [downloading, setDownloading] = useState(false);
 
   // Filter states
   const [countryFilter, setCountryFilter] = useState('');
@@ -165,6 +180,60 @@ const DomainGrid: React.FC<DomainGridProps> = ({ loading: externalLoading, onDom
     setSelectedSet(new Set());
   };
 
+  const handleShowData = () => {
+    if (selectedCounties.size === 0 || selectedElements.size === 0 || selectedYears.size === 0) {
+      alert('Please select at least one county, element, and year to view data.');
+      return;
+    }
+    setShowDataViewer(true);
+  };
+
+  const handleDownloadData = async () => {
+    if (selectedCounties.size === 0 || selectedElements.size === 0 || selectedYears.size === 0) {
+      alert('Please select at least one county, element, and year to download data.');
+      return;
+    }
+
+    try {
+      setDownloading(true);
+
+      const params = {
+        counties: Array.from(selectedCounties),
+        elements: Array.from(selectedElements),
+        items: selectedItems.size > 0 ? Array.from(selectedItems) : undefined,
+        years: Array.from(selectedYears),
+        subdomain: selectedSubdomain!.id
+      };
+
+      const options: DataExportOptions = {
+        outputType,
+        fileType,
+        thousandSeparator,
+        includeFlags,
+        includeNotes,
+        includeCodes,
+        includeUnits,
+        includeNullValues
+      };
+
+      const blob = await apiService.downloadKilimoData(params, options);
+      
+      // Create download link
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `kilimostat-data-${selectedSubdomain!.name.toLowerCase().replace(/\s+/g, '-')}.${fileType}`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (error) {
+      console.error('Download failed:', error);
+      alert('Download failed. Please try again.');
+    } finally {
+      setDownloading(false);
+    }
+  };
   if (loading || externalLoading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -436,7 +505,203 @@ const DomainGrid: React.FC<DomainGridProps> = ({ loading: externalLoading, onDom
               </div>
             </div>
           </div>
+
+          {/* Output Options */}
+          <div className="mt-8 bg-white border border-gray-200 rounded-lg p-6">
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+              {/* Output Type */}
+              <div>
+                <h4 className="text-sm font-medium text-gray-900 mb-3">Output Type</h4>
+                <div className="space-y-2">
+                  <label className="flex items-center">
+                    <input
+                      type="radio"
+                      name="outputType"
+                      value="table"
+                      checked={outputType === 'table'}
+                      onChange={(e) => setOutputType(e.target.value as 'table')}
+                      className="mr-2 text-blue-600 focus:ring-blue-500"
+                    />
+                    <span className="text-sm text-gray-700">Table</span>
+                  </label>
+                  <label className="flex items-center">
+                    <input
+                      type="radio"
+                      name="outputType"
+                      value="pivot"
+                      checked={outputType === 'pivot'}
+                      onChange={(e) => setOutputType(e.target.value as 'pivot')}
+                      className="mr-2 text-blue-600 focus:ring-blue-500"
+                    />
+                    <span className="text-sm text-gray-700">Pivot</span>
+                  </label>
+                </div>
+              </div>
+
+              {/* File Type */}
+              <div>
+                <h4 className="text-sm font-medium text-gray-900 mb-3">File Type</h4>
+                <div className="space-y-2">
+                  <label className="flex items-center">
+                    <input
+                      type="radio"
+                      name="fileType"
+                      value="csv"
+                      checked={fileType === 'csv'}
+                      onChange={(e) => setFileType(e.target.value as 'csv')}
+                      className="mr-2 text-blue-600 focus:ring-blue-500"
+                    />
+                    <span className="text-sm text-gray-700">CSV</span>
+                  </label>
+                  <label className="flex items-center">
+                    <input
+                      type="radio"
+                      name="fileType"
+                      value="xls"
+                      checked={fileType === 'xls'}
+                      onChange={(e) => setFileType(e.target.value as 'xls')}
+                      className="mr-2 text-blue-600 focus:ring-blue-500"
+                    />
+                    <span className="text-sm text-gray-700">XLS</span>
+                  </label>
+                </div>
+              </div>
+
+              {/* Thousand Separator */}
+              <div>
+                <h4 className="text-sm font-medium text-gray-900 mb-3">Thousand Separator in 'Show Data'</h4>
+                <div className="space-y-2">
+                  <label className="flex items-center">
+                    <input
+                      type="radio"
+                      name="thousandSeparator"
+                      value="none"
+                      checked={thousandSeparator === 'none'}
+                      onChange={(e) => setThousandSeparator(e.target.value as 'none')}
+                      className="mr-2 text-blue-600 focus:ring-blue-500"
+                    />
+                    <span className="text-sm text-gray-700">None</span>
+                  </label>
+                  <label className="flex items-center">
+                    <input
+                      type="radio"
+                      name="thousandSeparator"
+                      value="comma"
+                      checked={thousandSeparator === 'comma'}
+                      onChange={(e) => setThousandSeparator(e.target.value as 'comma')}
+                      className="mr-2 text-blue-600 focus:ring-blue-500"
+                    />
+                    <span className="text-sm text-gray-700">Comma</span>
+                  </label>
+                  <label className="flex items-center">
+                    <input
+                      type="radio"
+                      name="thousandSeparator"
+                      value="period"
+                      checked={thousandSeparator === 'period'}
+                      onChange={(e) => setThousandSeparator(e.target.value as 'period')}
+                      className="mr-2 text-blue-600 focus:ring-blue-500"
+                    />
+                    <span className="text-sm text-gray-700">Period</span>
+                  </label>
+                </div>
+              </div>
+
+              {/* Output Formatting Options */}
+              <div>
+                <h4 className="text-sm font-medium text-gray-900 mb-3">Output Formatting Options</h4>
+                <div className="space-y-2">
+                  <label className="flex items-center">
+                    <input
+                      type="checkbox"
+                      checked={includeFlags}
+                      onChange={(e) => setIncludeFlags(e.target.checked)}
+                      className="mr-2 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    />
+                    <span className="text-sm text-gray-700">Flags</span>
+                  </label>
+                  <label className="flex items-center">
+                    <input
+                      type="checkbox"
+                      checked={includeNotes}
+                      onChange={(e) => setIncludeNotes(e.target.checked)}
+                      className="mr-2 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    />
+                    <span className="text-sm text-gray-700">Notes</span>
+                  </label>
+                  <label className="flex items-center">
+                    <input
+                      type="checkbox"
+                      checked={includeCodes}
+                      onChange={(e) => setIncludeCodes(e.target.checked)}
+                      className="mr-2 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    />
+                    <span className="text-sm text-gray-700">Codes</span>
+                  </label>
+                  <label className="flex items-center">
+                    <input
+                      type="checkbox"
+                      checked={includeUnits}
+                      onChange={(e) => setIncludeUnits(e.target.checked)}
+                      className="mr-2 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    />
+                    <span className="text-sm text-gray-700">Units</span>
+                  </label>
+                  <label className="flex items-center">
+                    <input
+                      type="checkbox"
+                      checked={includeNullValues}
+                      onChange={(e) => setIncludeNullValues(e.target.checked)}
+                      className="mr-2 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    />
+                    <span className="text-sm text-gray-700">Null Values</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="mt-8 flex justify-center space-x-4">
+              <button
+                onClick={handleShowData}
+                disabled={selectedCounties.size === 0 || selectedElements.size === 0 || selectedYears.size === 0}
+                className="flex items-center space-x-2 px-8 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+              >
+                <span>🔍</span>
+                <span>Show Data</span>
+              </button>
+              <button
+                onClick={handleDownloadData}
+                disabled={downloading || selectedCounties.size === 0 || selectedElements.size === 0 || selectedYears.size === 0}
+                className="flex items-center space-x-2 px-8 py-3 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+              >
+                {downloading ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                    <span>Downloading...</span>
+                  </>
+                ) : (
+                  <>
+                    <Download className="h-4 w-4" />
+                    <span>Download Data</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
         </div>
+
+        {/* Data Viewer Modal */}
+        {showDataViewer && selectedSubdomain && (
+          <DataViewer
+            selectedCounties={selectedCounties}
+            selectedElements={selectedElements}
+            selectedItems={selectedItems}
+            selectedYears={selectedYears}
+            subdomainId={selectedSubdomain.id}
+            onClose={() => setShowDataViewer(false)}
+          />
+        )}
       </div>
     );
   }
