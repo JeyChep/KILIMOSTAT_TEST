@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ChevronDown, ChevronRight, ArrowLeft, Download } from 'lucide-react';
+import { ChevronDown, ChevronRight, ArrowLeft, Download, ChevronLeft } from 'lucide-react';
 import { apiService, Domain, SubDomain, County, Element, Item, ItemCategory, Subsector, DataExportOptions } from '../services/apiService';
 import DataViewer from './DataViewer';
 
