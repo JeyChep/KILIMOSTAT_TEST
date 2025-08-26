@@ -258,45 +258,10 @@ class ApiService {
       }
     } catch (error) {
       console.error(`Failed to fetch kilimo data from ${url}:`, error);
-      // Return mock data for testing
-      return this.getMockKilimoData(params);
+      throw error;
     }
   }
 
-  private getMockKilimoData(params: KilimoDataParams): KilimoDataRecord[] {
-    // Generate mock data for testing
-    const mockData: KilimoDataRecord[] = [];
-    const counties = params.counties || [1, 2, 3];
-    const elements = params.elements || [1, 2];
-    const years = params.years || [2023, 2024];
-    
-    counties.forEach(county => {
-      elements.forEach(element => {
-        years.forEach(year => {
-          mockData.push({
-            id: Math.random() * 1000000,
-            region: 'Kenya',
-            refyear: year.toString(),
-            value: (Math.random() * 10000).toFixed(2),
-            note: 'Mock data for testing',
-            date_created: new Date().toISOString(),
-            date_updated: new Date().toISOString(),
-            county: county,
-            subsector: params.subdomain || 1,
-            domain: 1,
-            subdomain: params.subdomain || 1,
-            element: element,
-            item: params.items?.[0] || 1,
-            unit: 1,
-            flag: 1,
-            source: 1
-          });
-        });
-      });
-    });
-    
-    return mockData;
-  }
   async downloadKilimoData(params: KilimoDataParams, options: DataExportOptions): Promise<Blob> {
     try {
       // First get the data

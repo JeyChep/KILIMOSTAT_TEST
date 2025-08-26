@@ -80,7 +80,7 @@ const DataViewer: React.FC<DataViewerProps> = ({
         setCurrentPage(1);
       } catch (err) {
         console.error('Failed to load data:', err);
-        setError(err instanceof Error ? err.message : 'Failed to load data');
+        setError(err instanceof Error ? err.message : 'Failed to load data from API. Please check your network connection and API endpoint.');
       } finally {
         setLoading(false);
       }
