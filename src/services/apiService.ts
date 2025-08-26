@@ -1,4 +1,4 @@
-const API_BASE_URL = 'https://10.101.100.251/en/kilimostat-api';
+const API_BASE_URL = 'http://localhost:8000/en/kilimostat-api';
 
 export interface ApiEndpoints {
   counties: string;
