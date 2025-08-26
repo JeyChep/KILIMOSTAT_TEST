@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { SearchFilters } from '../types';
-import { apiService, Domain } from '../services/apiService';
+import { Domain } from '../services/apiService';
+import { csvDataService } from '../services/csvDataService';
 
 export const useDomains = () => {
   const [domains, setDomains] = useState<Domain[]>([]);
@@ -17,8 +18,8 @@ export const useDomains = () => {
       setLoading(true);
       setError(null);
 
-      // Fetch domains from Django API
-      const domainsData = await apiService.getDomains();
+      // Fetch domains from CSV data
+      const domainsData = await csvDataService.getDomains();
       let filteredDomains = domainsData;
 
       // Apply filters to mock data
