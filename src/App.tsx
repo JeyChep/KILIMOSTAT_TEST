@@ -5,7 +5,6 @@ import DomainGrid from './components/DomainGrid';
 import DomainsTable from './components/DomainsTable';
 import DataTable from './components/DataTable';
 import SubsectorTabs from './components/SubsectorTabs';
-import ApiTest from './components/ApiTest';
 import { useDomains } from './hooks/useDomains';
 import { Domain } from './services/apiService';
 
@@ -70,11 +69,6 @@ function App() {
           <p className="text-gray-600">
             Browse and manage agricultural and economic data domains for statistical analysis.
           </p>
-        </div>
-
-        {/* API Test Component - Remove this after debugging */}
-        <div className="mb-8">
-          <ApiTest />
         </div>
 
         <SubsectorTabs 
