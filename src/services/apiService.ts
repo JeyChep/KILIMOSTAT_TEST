@@ -84,13 +84,21 @@ export interface KilimoDataParams {
 
 export interface KilimoDataRecord {
   id: number;
+  region: string;
+  refyear: string;
+  value: string;
+  note: string;
+  date_created: string;
+  date_updated: string;
   county: number;
+  subsector: number;
+  domain: number;
+  subdomain: number;
   element: number;
   item: number;
-  year: number;
-  value: number | string;
-  flag?: string;
-  unit?: string;
+  unit: number;
+  flag: number;
+  source: number;
 }
 
 export interface DataExportOptions {
@@ -207,7 +215,7 @@ class ApiService {
       params.items.forEach(id => searchParams.append('item', id.toString()));
     }
     if (params.years?.length) {
-      params.years.forEach(year => searchParams.append('year', year.toString()));
+      params.years.forEach(year => searchParams.append('refyear', year.toString()));
     }
     if (params.subdomain) {
       searchParams.append('subdomain', params.subdomain.toString());
@@ -232,7 +240,7 @@ class ApiService {
       params.items.forEach(id => searchParams.append('item', id.toString()));
     }
     if (params.years?.length) {
-      params.years.forEach(year => searchParams.append('year', year.toString()));
+      params.years.forEach(year => searchParams.append('refyear', year.toString()));
     }
     if (params.subdomain) {
       searchParams.append('subdomain', params.subdomain.toString());

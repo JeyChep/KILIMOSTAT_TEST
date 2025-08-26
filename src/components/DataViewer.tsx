@@ -101,8 +101,8 @@ const DataViewer: React.FC<DataViewerProps> = ({
     return item?.name || `Item ${itemId}`;
   };
 
-  const getUnitName = (unitId: string) => {
-    const unit = units.find(u => u.id.toString() === unitId);
+  const getUnitName = (unitId: number) => {
+    const unit = units.find(u => u.id === unitId);
     return unit?.abbreviation || unit?.name || '';
   };
 
@@ -112,9 +112,10 @@ const DataViewer: React.FC<DataViewerProps> = ({
     return data.slice(startIndex, endIndex);
   };
 
-  const formatValue = (value: number | string) => {
-    if (typeof value === 'number') {
-      return value.toLocaleString();
+  const formatValue = (value: string) => {
+    const numValue = parseFloat(value);
+    if (!isNaN(numValue)) {
+      return numValue.toLocaleString();
     }
     return value;
   };
@@ -196,8 +197,14 @@ const DataViewer: React.FC<DataViewerProps> = ({
                         <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-200">
                           Unit
                         </th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-200">
+                          Region
+                        </th>
                         <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-200">
                           Flag
+                        </th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-200">
+                          Note
                         </th>
                       </tr>
                     </thead>
@@ -214,22 +221,28 @@ const DataViewer: React.FC<DataViewerProps> = ({
                             {getItemName(record.item)}
                           </td>
                           <td className="px-4 py-3 text-sm text-gray-900 border-b border-gray-100">
-                            {record.year}
+                            {record.refyear}
                           </td>
                           <td className="px-4 py-3 text-sm text-gray-900 text-right border-b border-gray-100 font-mono">
                             {formatValue(record.value)}
                           </td>
                           <td className="px-4 py-3 text-sm text-gray-600 border-b border-gray-100">
-                            {record.unit ? getUnitName(record.unit) : '-'}
+                            {getUnitName(record.unit) || '-'}
+                          </td>
+                          <td className="px-4 py-3 text-sm text-gray-600 border-b border-gray-100">
+                            {record.region}
                           </td>
                           <td className="px-4 py-3 text-sm text-center border-b border-gray-100">
-                            {record.flag ? (
+                            {record.flag && record.flag !== 0 ? (
                               <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                                 {record.flag}
                               </span>
                             ) : (
                               '-'
                             )}
+                          </td>
+                          <td className="px-4 py-3 text-sm text-gray-600 border-b border-gray-100">
+                            {record.note || '-'}
                           </td>
                         </tr>
                       ))}

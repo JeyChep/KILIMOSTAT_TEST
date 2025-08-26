@@ -134,6 +134,7 @@ const DomainGrid: React.FC<DomainGridProps> = ({ loading: externalLoading, onDom
   };
 
   const getFilteredCounties = () => {
+    if (!counties || counties.length === 0) return [];
     return counties.filter(county =>
       county.name.toLowerCase().includes(countryFilter.toLowerCase())
     );
@@ -314,7 +315,7 @@ const DomainGrid: React.FC<DomainGridProps> = ({ loading: externalLoading, onDom
                 />
               </div>
               <div className="max-h-48 overflow-y-auto space-y-2">
-                {filteredCounties.slice(0, 10).map((county) => (
+                {filteredCounties.map((county) => (
                   <label key={county.id} className="flex items-center space-x-2 cursor-pointer">
                     <input
                       type="checkbox"
@@ -325,6 +326,9 @@ const DomainGrid: React.FC<DomainGridProps> = ({ loading: externalLoading, onDom
                     <span className="text-sm text-gray-700">{county.name}</span>
                   </label>
                 ))}
+                {filteredCounties.length === 0 && (
+                  <div className="text-sm text-gray-500 italic">No counties found</div>
+                )}
               </div>
               <div className="flex justify-between mt-4 pt-3 border-t border-gray-200">
                 <button
