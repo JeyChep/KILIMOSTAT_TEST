@@ -26,6 +26,8 @@ const DomainGrid: React.FC<DomainGridProps> = ({ loading: externalLoading, onDom
   const [selectedElements, setSelectedElements] = useState<Set<number>>(new Set());
   const [selectedItems, setSelectedItems] = useState<Set<number>>(new Set());
   const [selectedYears, setSelectedYears] = useState<Set<number>>(new Set());
+  const [selectedItemCategories, setSelectedItemCategories] = useState<Set<number>>(new Set());
+  const [showItemCategories, setShowItemCategories] = useState(true);
 
   // Output options
   const [outputType, setOutputType] = useState<'table' | 'pivot'>('table');
@@ -45,6 +47,7 @@ const DomainGrid: React.FC<DomainGridProps> = ({ loading: externalLoading, onDom
   const [countryFilter, setCountryFilter] = useState('');
   const [elementFilter, setElementFilter] = useState('');
   const [itemFilter, setItemFilter] = useState('');
+  const [itemCategoryFilter, setItemCategoryFilter] = useState('');
   const [yearFilter, setYearFilter] = useState('');
 
   useEffect(() => {
@@ -93,6 +96,10 @@ const DomainGrid: React.FC<DomainGridProps> = ({ loading: externalLoading, onDom
 
   const handleSubdomainClick = (subdomain: SubDomain) => {
     setSelectedSubdomain(subdomain);
+    // Reset item selections when changing subdomain
+    setSelectedItems(new Set());
+    setSelectedItemCategories(new Set());
+    setShowItemCategories(true);
   };
 
   const handleBackToDomains = () => {
@@ -149,7 +156,20 @@ const DomainGrid: React.FC<DomainGridProps> = ({ loading: externalLoading, onDom
   };
 
   const getFilteredItems = () => {
-    return items.filter(item =>
+    if (!selectedSubdomain) return [];
+    const subdomainItems = items.filter(item => {
+      const itemElements = elements.filter(e => e.id === item.element);
+      return itemElements.some(e => e.subdomain === selectedSubdomain.id);
+    });
+    
+    if (selectedItemCategories.size > 0) {
+      return subdomainItems.filter(item => 
+        selectedItemCategories.has(item.itemcategory) &&
+        item.name.toLowerCase().includes(itemFilter.toLowerCase())
+      );
+    }
+    
+    return subdomainItems.filter(item =>
       item.name.toLowerCase().includes(itemFilter.toLowerCase())
     );
   };
@@ -162,6 +182,20 @@ const DomainGrid: React.FC<DomainGridProps> = ({ loading: externalLoading, onDom
     );
   };
 
+  const getFilteredItemCategories = () => {
+    if (!selectedSubdomain) return [];
+    const subdomainItems = items.filter(item => {
+      const itemElements = elements.filter(e => e.id === item.element);
+      return itemElements.some(e => e.subdomain === selectedSubdomain.id);
+    });
+    
+    const categoryIds = [...new Set(subdomainItems.map(item => item.itemcategory))];
+    const subdomainCategories = itemCategories.filter(category => categoryIds.includes(category.id));
+    
+    return subdomainCategories.filter(category =>
+      category.name.toLowerCase().includes(itemCategoryFilter.toLowerCase())
+    );
+  };
   const toggleSelection = (id: number, selectedSet: Set<number>, setSelectedSet: React.Dispatch<React.SetStateAction<Set<number>>>) => {
     const newSet = new Set(selectedSet);
     if (newSet.has(id)) {
@@ -436,31 +470,91 @@ const DomainGrid: React.FC<DomainGridProps> = ({ loading: externalLoading, onDom
           <div className="bg-white border border-gray-200 rounded-lg">
             <div className="px-4 py-3 border-b border-gray-200">
               <div className="flex items-center justify-between">
-                <h3 className="text-sm font-medium text-gray-900">ITEMS</h3>
+                <h3 className="text-sm font-medium text-gray-900">
+                  {showItemCategories ? 'ITEMS' : 'ITEM CATEGORIES'}
+                </h3>
                 <span className="text-xs text-gray-500">CPC</span>
               </div>
+              {!showItemCategories && (
+                <button
+                  onClick={() => {
+                    setShowItemCategories(true);
+                    setSelectedItemCategories(new Set());
+                  }}
+                  className="mt-2 text-xs text-blue-600 hover:text-blue-800 flex items-center"
+                >
+                  <ChevronLeft className="h-3 w-3 mr-1" />
+                  Back to Categories
+                </button>
+              )}
             </div>
             <div className="p-4">
               <div className="mb-3">
                 <input
                   type="text"
-                  placeholder="Filter results e.g. maize, wheat"
-                  value={itemFilter}
-                  onChange={(e) => setItemFilter(e.target.value)}
+                  placeholder={showItemCategories ? "Filter categories e.g. crops" : "Filter items e.g. maize, wheat"}
+                  value={showItemCategories ? itemCategoryFilter : itemFilter}
+                  onChange={(e) => showItemCategories ? setItemCategoryFilter(e.target.value) : setItemFilter(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
                 />
               </div>
               <div className="max-h-48 overflow-y-auto space-y-2">
-                {itemCategories.map((category) => (
-                  <div key={category.id} className="flex items-center space-x-2">
-                    <ChevronRight className="h-4 w-4 text-gray-400" />
-                    <span className="text-sm text-gray-700">{category.name}</span>
-                  </div>
-                ))}
+                {showItemCategories ? (
+                  getFilteredItemCategories().map((category) => (
+                    <button
+                      key={category.id}
+                      onClick={() => {
+                        setSelectedItemCategories(new Set([category.id]));
+                        setShowItemCategories(false);
+                      }}
+                      className="w-full flex items-center space-x-2 p-2 hover:bg-gray-50 rounded-md text-left"
+                    >
+                      <ChevronRight className="h-4 w-4 text-gray-400" />
+                      <span className="text-sm text-gray-700">{category.name}</span>
+                    </button>
+                  ))
+                ) : (
+                  getFilteredItems().map((item) => (
+                    <label key={item.id} className="flex items-center space-x-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={selectedItems.has(item.id)}
+                        onChange={() => toggleSelection(item.id, selectedItems, setSelectedItems)}
+                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <span className="text-sm text-gray-700">{item.name}</span>
+                    </label>
+                  ))
+                )}
+                {showItemCategories && getFilteredItemCategories().length === 0 && (
+                  <div className="text-sm text-gray-500 italic">No item categories found for this subdomain</div>
+                )}
+                {!showItemCategories && getFilteredItems().length === 0 && (
+                  <div className="text-sm text-gray-500 italic">No items found in selected category</div>
+                )}
               </div>
               <div className="flex justify-between mt-4 pt-3 border-t border-gray-200">
-                <button className="text-sm text-blue-600 hover:text-blue-800">Select All</button>
-                <button className="text-sm text-blue-600 hover:text-blue-800">Clear All</button>
+                {!showItemCategories && (
+                  <>
+                    <button
+                      onClick={() => selectAll(getFilteredItems(), selectedItems, setSelectedItems)}
+                      className="text-sm text-blue-600 hover:text-blue-800"
+                    >
+                      Select All
+                    </button>
+                    <button
+                      onClick={() => clearAll(setSelectedItems)}
+                      className="text-sm text-blue-600 hover:text-blue-800"
+                    >
+                      Clear All
+                    </button>
+                  </>
+                )}
+                {showItemCategories && (
+                  <div className="text-xs text-gray-500">
+                    Click a category to view items
+                  </div>
+                )}
               </div>
             </div>
           </div>

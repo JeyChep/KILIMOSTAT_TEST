@@ -201,6 +201,20 @@ class ApiService {
     return items.filter(item => item.itemcategory === categoryId);
   }
 
+  async getItemsBySubdomain(subdomainId: number): Promise<Item[]> {
+    const items = await this.getItems();
+    const elements = await this.getElementsBySubdomain(subdomainId);
+    const elementIds = elements.map(e => e.id);
+    return items.filter(item => elementIds.includes(item.element));
+  }
+
+  async getItemCategoriesBySubdomain(subdomainId: number): Promise<ItemCategory[]> {
+    const items = await this.getItemsBySubdomain(subdomainId);
+    const categoryIds = [...new Set(items.map(item => item.itemcategory))];
+    const allCategories = await this.getItemCategories();
+    return allCategories.filter(category => categoryIds.includes(category.id));
+  }
+
   async getKilimoData(params: KilimoDataParams): Promise<KilimoDataRecord[]> {
     const endpoints = await this.getEndpoints();
     const searchParams = new URLSearchParams();
