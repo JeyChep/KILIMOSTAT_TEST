@@ -220,6 +220,13 @@ const DomainGrid: React.FC<DomainGridProps> = ({ loading: externalLoading, onDom
       alert('Please select at least one county, element, and year to view data.');
       return;
     }
+    console.log('Show data clicked with selections:', {
+      counties: Array.from(selectedCounties),
+      elements: Array.from(selectedElements),
+      items: Array.from(selectedItems),
+      years: Array.from(selectedYears),
+      subdomain: selectedSubdomain?.id
+    });
     setShowDataViewer(true);
   };
 
@@ -231,6 +238,13 @@ const DomainGrid: React.FC<DomainGridProps> = ({ loading: externalLoading, onDom
 
     try {
       setDownloading(true);
+      console.log('Download data clicked with selections:', {
+        counties: Array.from(selectedCounties),
+        elements: Array.from(selectedElements),
+        items: Array.from(selectedItems),
+        years: Array.from(selectedYears),
+        subdomain: selectedSubdomain?.id
+      });
 
       const params = {
         counties: Array.from(selectedCounties),
@@ -262,9 +276,11 @@ const DomainGrid: React.FC<DomainGridProps> = ({ loading: externalLoading, onDom
       a.click();
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
+      
+      console.log('Download completed successfully');
     } catch (error) {
       console.error('Download failed:', error);
-      alert('Download failed. Please try again.');
+      alert(`Download failed: ${error instanceof Error ? error.message : 'Unknown error'}. Please try again.`);
     } finally {
       setDownloading(false);
     }
@@ -480,6 +496,7 @@ const DomainGrid: React.FC<DomainGridProps> = ({ loading: externalLoading, onDom
                   onClick={() => {
                     setShowItemCategories(true);
                     setSelectedItemCategories(new Set());
+                    setItemFilter(''); // Clear item filter when going back
                   }}
                   className="mt-2 text-xs text-blue-600 hover:text-blue-800 flex items-center"
                 >
@@ -504,17 +521,22 @@ const DomainGrid: React.FC<DomainGridProps> = ({ loading: externalLoading, onDom
                     <button
                       key={category.id}
                       onClick={() => {
+                        console.log('Selected item category:', category);
                         setSelectedItemCategories(new Set([category.id]));
                         setShowItemCategories(false);
+                        setItemFilter(''); // Clear item filter when switching to items view
                       }}
                       className="w-full flex items-center space-x-2 p-2 hover:bg-gray-50 rounded-md text-left"
                     >
                       <ChevronRight className="h-4 w-4 text-gray-400" />
                       <span className="text-sm text-gray-700">{category.name}</span>
+                      <span className="text-xs text-gray-500 ml-auto">
+                        ({getFilteredItems().filter(item => item.itemcategory === category.id).length} items)
+                      </span>
                     </button>
                   ))
                 ) : (
-                  getFilteredItems().map((item) => (
+                  getFilteredItems().slice(0, 20).map((item) => (
                     <label key={item.id} className="flex items-center space-x-2 cursor-pointer">
                       <input
                         type="checkbox"
@@ -530,7 +552,23 @@ const DomainGrid: React.FC<DomainGridProps> = ({ loading: externalLoading, onDom
                   <div className="text-sm text-gray-500 italic">No item categories found for this subdomain</div>
                 )}
                 {!showItemCategories && getFilteredItems().length === 0 && (
-                  <div className="text-sm text-gray-500 italic">No items found in selected category</div>
+                  <div className="text-sm text-gray-500 italic">
+                    No items found in selected category. 
+                    <button 
+                      onClick={() => {
+                        setShowItemCategories(true);
+                        setSelectedItemCategories(new Set());
+                      }}
+                      className="text-blue-600 hover:text-blue-800 ml-1"
+                    >
+                      Go back to categories
+                    </button>
+                  </div>
+                )}
+                {!showItemCategories && getFilteredItems().length > 20 && (
+                  <div className="text-xs text-gray-500 italic mt-2">
+                    Showing first 20 items. Use filter to narrow down results.
+                  </div>
                 )}
               </div>
               <div className="flex justify-between mt-4 pt-3 border-t border-gray-200">

@@ -56,6 +56,7 @@ const DataViewer: React.FC<DataViewerProps> = ({
   useEffect(() => {
     const loadData = async () => {
       if (selectedCounties.size === 0 || selectedElements.size === 0 || selectedYears.size === 0) {
+        console.log('Missing required selections for data loading');
         return;
       }
 
@@ -71,7 +72,9 @@ const DataViewer: React.FC<DataViewerProps> = ({
           subdomain: subdomainId
         };
 
+        console.log('Loading data with params:', params);
         const result = await apiService.getKilimoData(params);
+        console.log('Data loaded:', result.length, 'records');
         setData(result);
         setTotalPages(Math.ceil(result.length / itemsPerPage));
         setCurrentPage(1);
