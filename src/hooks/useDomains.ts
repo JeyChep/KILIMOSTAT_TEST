@@ -68,7 +68,7 @@ export const useDomains = () => {
       const csvContent = [
         'ID,Name,Code,Description,Subsector',
         ...domainsToExport.map(domain => 
-          `${domain.id},"${domain.name}","${domain.code || ''}","${domain.description || '"}","${domain.subsector}"`
+          `${domain.id},"${domain.name}","${domain.code || ''}","${domain.description || ''}","${domain.subsector}"`
         )
       ].join('\n');
       
