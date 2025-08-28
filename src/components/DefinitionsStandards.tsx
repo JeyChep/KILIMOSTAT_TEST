@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ChevronDown, ChevronRight, Search } from 'lucide-react';
-import { dataService } from '../services/dataService';
+import { apiService } from '../services/apiService';
 import { Abbreviation, County, Flag, Item, ItemCategory, Element, Unit } from '../types';
 
 interface DataSection {
@@ -15,34 +15,23 @@ const DefinitionsStandards: React.FC = () => {
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const loadData = async () => {
       try {
         setLoading(true);
+        setError(null);
         
-        const [abbreviations, counties, flags, items, itemCategories, elements, units] = await Promise.all([
-          dataService.getAbbreviations(),
-          dataService.getCounties(),
-          dataService.getFlags(),
-          dataService.getItems(),
-          dataService.getItemCategories(),
-          dataService.getElements(),
-          dataService.getUnits()
+        const [counties, elements, items, itemCategories, units] = await Promise.all([
+          apiService.getCounties(),
+          apiService.getElements(),
+          apiService.getItems(),
+          apiService.getItemCategories(),
+          apiService.getUnits()
         ]);
 
         const newSections: DataSection[] = [
-          {
-            id: 'abbreviations',
-            title: 'Abbreviations',
-            data: abbreviations,
-            columns: [
-              { key: 'abbr', label: 'Abbreviation', width: '15%' },
-              { key: 'description', label: 'Description', width: '60%' },
-              { key: 'slug', label: 'Slug', width: '15%' },
-              { key: 'id', label: 'ID', width: '10%' }
-            ]
-          },
           {
             id: 'counties',
             title: 'Counties',
@@ -63,17 +52,6 @@ const DefinitionsStandards: React.FC = () => {
               { key: 'code', label: 'Code', width: '15%' },
               { key: 'description', label: 'Description', width: '25%' },
               { key: 'subdomain', label: 'Subdomain', width: '10%' }
-            ]
-          },
-          {
-            id: 'flags',
-            title: 'Flags',
-            data: flags,
-            columns: [
-              { key: 'id', label: 'ID', width: '15%' },
-              { key: 'name', label: 'Flag Name', width: '50%' },
-              { key: 'code', label: 'Code', width: '20%' },
-              { key: 'description', label: 'Description', width: '15%' }
             ]
           },
           {
@@ -115,8 +93,9 @@ const DefinitionsStandards: React.FC = () => {
         ];
 
         setSections(newSections);
-      } catch (error) {
-        console.error('Failed to load definitions data:', error);
+      } catch (err) {
+        console.error('Failed to load definitions data:', err);
+        setError(err instanceof Error ? err.message : 'Failed to load definitions data');
       } finally {
         setLoading(false);
       }
@@ -151,6 +130,18 @@ const DefinitionsStandards: React.FC = () => {
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
           <p className="text-gray-600">Loading definitions and standards...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-red-500 text-4xl mb-4">⚠️</div>
+          <h3 className="text-lg font-medium text-gray-900 mb-2">Failed to load data</h3>
+          <p className="text-gray-600">{error}</p>
         </div>
       </div>
     );

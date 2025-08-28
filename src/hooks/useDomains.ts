@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { SearchFilters } from '../types';
-import { Domain } from '../services/apiService';
-import { csvDataService } from '../services/csvDataService';
+import { Domain, apiService } from '../services/apiService';
 
 export const useDomains = () => {
   const [domains, setDomains] = useState<Domain[]>([]);
@@ -18,15 +17,21 @@ export const useDomains = () => {
       setLoading(true);
       setError(null);
 
-      // Fetch domains from CSV data
-      const domainsData = await csvDataService.getDomains();
+      // Fetch domains from API
+      const domainsData = await apiService.getDomains();
       let filteredDomains = domainsData;
 
-      // Apply filters to mock data
+      // Apply filters
       if (filters.query) {
         filteredDomains = filteredDomains.filter(domain =>
           domain.name.toLowerCase().includes(filters.query.toLowerCase()) ||
           (domain.code && domain.code.toLowerCase().includes(filters.query.toLowerCase()))
+        );
+      }
+
+      if (filters.subsector) {
+        filteredDomains = filteredDomains.filter(domain =>
+          domain.subsector.toString() === filters.subsector
         );
       }
 
@@ -63,7 +68,7 @@ export const useDomains = () => {
       const csvContent = [
         'ID,Name,Code,Description,Subsector',
         ...domainsToExport.map(domain => 
-          `${domain.id},"${domain.name}","${domain.code || ''}","${domain.description || ''}","${domain.subsector}"`
+          `${domain.id},"${domain.name}","${domain.code || ''}","${domain.description || '"}","${domain.subsector}"`
         )
       ].join('\n');
       
