@@ -1,12 +1,3 @@
-export interface Domain {
-  id: number;
-  name: string;
-  code: string;
-  subsector: string;
-  description?: string;
-  icon?: string;
-}
-
 export interface ApiResponse<T> {
   results: T[];
   count: number;
@@ -25,6 +16,7 @@ export interface NavigationTab {
   label: string;
   active: boolean;
 }
+
 export interface Abbreviation {
   id: number;
   abbr: string;

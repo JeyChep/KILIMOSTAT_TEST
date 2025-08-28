@@ -1,112 +1,88 @@
-import React, { useState } from 'react';
-import { ChevronDown, ChevronRight, ArrowLeft } from 'lucide-react';
-import { Domain } from '../types';
-
-interface DomainWithSubdomains extends Domain {
-  subdomains: any[];
-}
+import React, { useState, useEffect } from 'react';
+import { ChevronDown, ChevronRight, ArrowLeft, Download, ChevronLeft } from 'lucide-react';
+import { apiService, Domain, SubDomain, County, Element, Item, ItemCategory, Subsector, DataExportOptions } from '../services/apiService';
+import DataViewer from './DataViewer';
 
 interface DomainGridProps {
-  domains: Domain[];
   loading: boolean;
-  onDomainClick: (domain: Domain) => void;
+  onDomainClick?: (domain: Domain) => void;
 }
 
-const DomainGrid: React.FC<DomainGridProps> = ({ domains, loading, onDomainClick }) => {
+const DomainGrid: React.FC<DomainGridProps> = ({ loading: externalLoading, onDomainClick }) => {
+  const [domains, setDomains] = useState<Domain[]>([]);
+  const [subsectors, setSubsectors] = useState<Subsector[]>([]);
   const [expandedDomains, setExpandedDomains] = useState<Set<number>>(new Set());
-  const [selectedSubdomain, setSelectedSubdomain] = useState<any>(null);
-  const [domainsWithSubdomains, setDomainsWithSubdomains] = useState<DomainWithSubdomains[]>([]);
-  const [counties, setCounties] = useState<any[]>([]);
-  const [elements, setElements] = useState<any[]>([]);
-  const [items, setItems] = useState<any[]>([]);
-  const [itemCategories, setItemCategories] = useState<any[]>([]);
+  const [selectedSubdomain, setSelectedSubdomain] = useState<SubDomain | null>(null);
+  const [subdomains, setSubdomains] = useState<SubDomain[]>([]);
+  const [counties, setCounties] = useState<County[]>([]);
+  const [elements, setElements] = useState<Element[]>([]);
+  const [items, setItems] = useState<Item[]>([]);
+  const [itemCategories, setItemCategories] = useState<ItemCategory[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Selection states
   const [selectedCounties, setSelectedCounties] = useState<Set<number>>(new Set());
   const [selectedElements, setSelectedElements] = useState<Set<number>>(new Set());
   const [selectedItems, setSelectedItems] = useState<Set<number>>(new Set());
   const [selectedYears, setSelectedYears] = useState<Set<number>>(new Set());
+  const [selectedItemCategories, setSelectedItemCategories] = useState<Set<number>>(new Set());
+  const [showItemCategories, setShowItemCategories] = useState(true);
 
-  React.useEffect(() => {
+  // Output options
+  const [outputType, setOutputType] = useState<'table' | 'pivot'>('table');
+  const [fileType, setFileType] = useState<'csv' | 'xls'>('csv');
+  const [thousandSeparator, setThousandSeparator] = useState<'none' | 'comma' | 'period'>('none');
+  const [includeFlags, setIncludeFlags] = useState(true);
+  const [includeNotes, setIncludeNotes] = useState(true);
+  const [includeCodes, setIncludeCodes] = useState(true);
+  const [includeUnits, setIncludeUnits] = useState(true);
+  const [includeNullValues, setIncludeNullValues] = useState(false);
+
+  // Data viewer
+  const [showDataViewer, setShowDataViewer] = useState(false);
+  const [downloading, setDownloading] = useState(false);
+
+  // Filter states
+  const [countryFilter, setCountryFilter] = useState('');
+  const [elementFilter, setElementFilter] = useState('');
+  const [itemFilter, setItemFilter] = useState('');
+  const [itemCategoryFilter, setItemCategoryFilter] = useState('');
+  const [yearFilter, setYearFilter] = useState('');
+
+  useEffect(() => {
     const loadData = async () => {
       try {
-        // Load subdomains, counties, elements, items, and item categories
-        const [subdomainsResponse, countiesResponse, elementsResponse, itemsResponse, itemCategoriesResponse] = await Promise.all([
-          fetch('/data/SubDomain-2025-08-18.csv'),
-          fetch('/data/County-2025-08-18.csv'),
-          fetch('/data/Element-2025-08-14.csv'),
-          fetch('/data/Item-2025-08-14.csv'),
-          fetch('/data/ItemCategory-2025-08-14.csv')
+        setLoading(true);
+        setError(null);
+
+        const [domainsData, subsectorsData, subdomainsData, countiesData, elementsData, itemsData, itemCategoriesData] = await Promise.all([
+          apiService.getDomains(),
+          apiService.getSubsectors(),
+          apiService.getSubdomains(),
+          apiService.getCounties(),
+          apiService.getElements(),
+          apiService.getItems(),
+          apiService.getItemCategories()
         ]);
 
-        const [subdomainsText, countiesText, elementsText, itemsText, itemCategoriesText] = await Promise.all([
-          subdomainsResponse.text(),
-          countiesResponse.text(),
-          elementsResponse.text(),
-          itemsResponse.text(),
-          itemCategoriesResponse.text()
-        ]);
-
-        // Parse CSVs
-        const parseCSV = (text: string) => {
-          const lines = text.trim().split('\n');
-          const headers = lines[0].split(',');
-          return lines.slice(1).map(line => {
-            const values = parseCSVLine(line);
-            const obj: any = {};
-            headers.forEach((header, index) => {
-              obj[header] = values[index] || '';
-            });
-            return obj;
-          });
-        };
-
-        const subdomains = parseCSV(subdomainsText);
-        const countiesData = parseCSV(countiesText);
-        const elementsData = parseCSV(elementsText);
-        const itemsData = parseCSV(itemsText);
-        const itemCategoriesData = parseCSV(itemCategoriesText);
-
-        // Combine domains with subdomains
-        const domainsWithSubs = domains.map(domain => ({
-          ...domain,
-          subdomains: subdomains.filter((sub: any) => parseInt(sub.domain) === domain.id)
-        }));
-
-        setDomainsWithSubdomains(domainsWithSubs);
+        setDomains(domainsData);
+        setSubsectors(subsectorsData);
+        setSubdomains(subdomainsData);
         setCounties(countiesData);
         setElements(elementsData);
         setItems(itemsData);
         setItemCategories(itemCategoriesData);
-      } catch (error) {
-        console.error('Failed to load data:', error);
+      } catch (err) {
+        console.error('Failed to load data:', err);
+        setError(err instanceof Error ? err.message : 'Failed to load data');
+      } finally {
+        setLoading(false);
       }
     };
 
-    if (domains.length > 0) {
-      loadData();
-    }
-  }, [domains]);
-
-  const parseCSVLine = (line: string): string[] => {
-    const result = [];
-    let current = '';
-    let inQuotes = false;
-    
-    for (let i = 0; i < line.length; i++) {
-      const char = line[i];
-      
-      if (char === '"') {
-        inQuotes = !inQuotes;
-      } else if (char === ',' && !inQuotes) {
-        result.push(current.trim());
-        current = '';
-      } else {
-        current += char;
-      }
-    }
-    
-    result.push(current.trim());
-    return result;
-  };
+    loadData();
+  }, []);
 
   const toggleDomain = (domainId: number) => {
     const newExpanded = new Set(expandedDomains);
@@ -118,8 +94,12 @@ const DomainGrid: React.FC<DomainGridProps> = ({ domains, loading, onDomainClick
     setExpandedDomains(newExpanded);
   };
 
-  const handleSubdomainClick = (subdomain: any) => {
+  const handleSubdomainClick = (subdomain: SubDomain) => {
     setSelectedSubdomain(subdomain);
+    // Reset item selections when changing subdomain
+    setSelectedItems(new Set());
+    setSelectedItemCategories(new Set());
+    setShowItemCategories(true);
   };
 
   const handleBackToDomains = () => {
@@ -151,6 +131,71 @@ const DomainGrid: React.FC<DomainGridProps> = ({ domains, loading, onDomainClick
     return '📊';
   };
 
+  const getSubsectorName = (subsectorId: number) => {
+    const subsector = subsectors.find(s => s.id === subsectorId);
+    return subsector?.name || 'Unknown';
+  };
+
+  const getSubdomainsByDomain = (domainId: number) => {
+    return subdomains.filter(subdomain => subdomain.domain === domainId);
+  };
+
+  const getFilteredCounties = () => {
+    if (!counties || counties.length === 0) return [];
+    return counties.filter(county =>
+      county.name.toLowerCase().includes(countryFilter.toLowerCase())
+    );
+  };
+
+  const getFilteredElements = () => {
+    if (!selectedSubdomain) return [];
+    const subdomainElements = elements.filter(element => element.subdomain === selectedSubdomain.id);
+    return subdomainElements.filter(element =>
+      element.name.toLowerCase().includes(elementFilter.toLowerCase())
+    );
+  };
+
+  const getFilteredItems = () => {
+    if (!selectedSubdomain) return [];
+    const subdomainItems = items.filter(item => {
+      const itemElements = elements.filter(e => e.id === item.element);
+      return itemElements.some(e => e.subdomain === selectedSubdomain.id);
+    });
+    
+    if (selectedItemCategories.size > 0) {
+      return subdomainItems.filter(item => 
+        selectedItemCategories.has(item.itemcategory) &&
+        item.name.toLowerCase().includes(itemFilter.toLowerCase())
+      );
+    }
+    
+    return subdomainItems.filter(item =>
+      item.name.toLowerCase().includes(itemFilter.toLowerCase())
+    );
+  };
+
+  const getFilteredYears = () => {
+    const currentYear = new Date().getFullYear();
+    const years = Array.from({ length: 15 }, (_, i) => currentYear - i);
+    return years.filter(year =>
+      year.toString().includes(yearFilter)
+    );
+  };
+
+  const getFilteredItemCategories = () => {
+    if (!selectedSubdomain) return [];
+    const subdomainItems = items.filter(item => {
+      const itemElements = elements.filter(e => e.id === item.element);
+      return itemElements.some(e => e.subdomain === selectedSubdomain.id);
+    });
+    
+    const categoryIds = [...new Set(subdomainItems.map(item => item.itemcategory))];
+    const subdomainCategories = itemCategories.filter(category => categoryIds.includes(category.id));
+    
+    return subdomainCategories.filter(category =>
+      category.name.toLowerCase().includes(itemCategoryFilter.toLowerCase())
+    );
+  };
   const toggleSelection = (id: number, selectedSet: Set<number>, setSelectedSet: React.Dispatch<React.SetStateAction<Set<number>>>) => {
     const newSet = new Set(selectedSet);
     if (newSet.has(id)) {
@@ -162,7 +207,7 @@ const DomainGrid: React.FC<DomainGridProps> = ({ domains, loading, onDomainClick
   };
 
   const selectAll = (items: any[], selectedSet: Set<number>, setSelectedSet: React.Dispatch<React.SetStateAction<Set<number>>>) => {
-    const allIds = items.map(item => parseInt(item.id));
+    const allIds = items.map(item => item.id);
     setSelectedSet(new Set(allIds));
   };
 
@@ -170,19 +215,101 @@ const DomainGrid: React.FC<DomainGridProps> = ({ domains, loading, onDomainClick
     setSelectedSet(new Set());
   };
 
-  if (loading) {
+  const handleShowData = () => {
+    if (selectedCounties.size === 0 || selectedElements.size === 0 || selectedYears.size === 0) {
+      alert('Please select at least one county, element, and year to view data.');
+      return;
+    }
+    console.log('Show data clicked with selections:', {
+      counties: Array.from(selectedCounties),
+      elements: Array.from(selectedElements),
+      items: Array.from(selectedItems),
+      years: Array.from(selectedYears),
+      subdomain: selectedSubdomain?.id
+    });
+    setShowDataViewer(true);
+  };
+
+  const handleDownloadData = async () => {
+    if (selectedCounties.size === 0 || selectedElements.size === 0 || selectedYears.size === 0) {
+      alert('Please select at least one county, element, and year to download data.');
+      return;
+    }
+
+    try {
+      setDownloading(true);
+      console.log('Download data clicked with selections:', {
+        counties: Array.from(selectedCounties),
+        elements: Array.from(selectedElements),
+        items: Array.from(selectedItems),
+        years: Array.from(selectedYears),
+        subdomain: selectedSubdomain?.id
+      });
+
+      const params = {
+        counties: Array.from(selectedCounties),
+        elements: Array.from(selectedElements),
+        items: selectedItems.size > 0 ? Array.from(selectedItems) : undefined,
+        years: Array.from(selectedYears),
+        subdomain: selectedSubdomain!.id
+      };
+
+      const options: DataExportOptions = {
+        outputType,
+        fileType,
+        thousandSeparator,
+        includeFlags,
+        includeNotes,
+        includeCodes,
+        includeUnits,
+        includeNullValues
+      };
+
+      const blob = await apiService.downloadKilimoData(params, options);
+      
+      // Create download link
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `kilimostat-data-${selectedSubdomain!.name.toLowerCase().replace(/\s+/g, '-')}.${fileType}`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      
+      console.log('Download completed successfully');
+    } catch (error) {
+      console.error('Download failed:', error);
+      alert(`Download failed: ${error instanceof Error ? error.message : 'Unknown error'}. Please try again.`);
+    } finally {
+      setDownloading(false);
+    }
+  };
+  if (loading || externalLoading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {Array.from({ length: 6 }).map((_, i) => (
-          <div key={i} className="animate-pulse">
-            <div className="bg-gray-200 rounded-lg h-32"></div>
-          </div>
-        ))}
+      <div className="flex items-center justify-center py-12">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <span className="ml-2 text-gray-600">Loading domains...</span>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-center py-12">
+        <div className="text-red-500 text-4xl mb-4">⚠️</div>
+        <h3 className="text-lg font-medium text-gray-900 mb-2">Failed to load data</h3>
+        <p className="text-gray-600">{error}</p>
       </div>
     );
   }
 
   if (selectedSubdomain) {
+    const filteredCounties = getFilteredCounties();
+    const filteredElements = getFilteredElements();
+    const filteredItems = getFilteredItems();
+    const filteredYears = getFilteredYears();
+
     return (
       <div className="bg-white">
         {/* Header */}
@@ -232,25 +359,30 @@ const DomainGrid: React.FC<DomainGridProps> = ({ domains, loading, onDomainClick
                 <input
                   type="text"
                   placeholder="Filter results e.g. nairobi"
+                  value={countryFilter}
+                  onChange={(e) => setCountryFilter(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
                 />
               </div>
               <div className="max-h-48 overflow-y-auto space-y-2">
-                {counties.slice(0, 10).map((county) => (
+                {filteredCounties.map((county) => (
                   <label key={county.id} className="flex items-center space-x-2 cursor-pointer">
                     <input
                       type="checkbox"
-                      checked={selectedCounties.has(parseInt(county.id))}
-                      onChange={() => toggleSelection(parseInt(county.id), selectedCounties, setSelectedCounties)}
+                      checked={selectedCounties.has(county.id)}
+                      onChange={() => toggleSelection(county.id, selectedCounties, setSelectedCounties)}
                       className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                     />
                     <span className="text-sm text-gray-700">{county.name}</span>
                   </label>
                 ))}
+                {filteredCounties.length === 0 && (
+                  <div className="text-sm text-gray-500 italic">No counties found</div>
+                )}
               </div>
               <div className="flex justify-between mt-4 pt-3 border-t border-gray-200">
                 <button
-                  onClick={() => selectAll(counties, selectedCounties, setSelectedCounties)}
+                  onClick={() => selectAll(filteredCounties, selectedCounties, setSelectedCounties)}
                   className="text-sm text-blue-600 hover:text-blue-800"
                 >
                   Select All
@@ -275,16 +407,18 @@ const DomainGrid: React.FC<DomainGridProps> = ({ domains, loading, onDomainClick
                 <input
                   type="text"
                   placeholder="Filter results e.g. area harvested"
+                  value={elementFilter}
+                  onChange={(e) => setElementFilter(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
                 />
               </div>
               <div className="max-h-48 overflow-y-auto space-y-2">
-                {elements.slice(0, 8).map((element) => (
+                {filteredElements.slice(0, 8).map((element) => (
                   <label key={element.id} className="flex items-center space-x-2 cursor-pointer">
                     <input
                       type="checkbox"
-                      checked={selectedElements.has(parseInt(element.id))}
-                      onChange={() => toggleSelection(parseInt(element.id), selectedElements, setSelectedElements)}
+                      checked={selectedElements.has(element.id)}
+                      onChange={() => toggleSelection(element.id, selectedElements, setSelectedElements)}
                       className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                     />
                     <span className="text-sm text-gray-700">{element.name}</span>
@@ -293,7 +427,7 @@ const DomainGrid: React.FC<DomainGridProps> = ({ domains, loading, onDomainClick
               </div>
               <div className="flex justify-between mt-4 pt-3 border-t border-gray-200">
                 <button
-                  onClick={() => selectAll(elements, selectedElements, setSelectedElements)}
+                  onClick={() => selectAll(filteredElements, selectedElements, setSelectedElements)}
                   className="text-sm text-blue-600 hover:text-blue-800"
                 >
                   Select All
@@ -320,7 +454,7 @@ const DomainGrid: React.FC<DomainGridProps> = ({ domains, loading, onDomainClick
 
             <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
               <h4 className="text-sm font-medium text-gray-900 mb-3 flex items-center">
-                <span className="mr-2">📥</span>
+                <Download className="h-4 w-4 mr-2" />
                 Bulk Downloads
               </h4>
               <div className="space-y-2">
@@ -352,29 +486,113 @@ const DomainGrid: React.FC<DomainGridProps> = ({ domains, loading, onDomainClick
           <div className="bg-white border border-gray-200 rounded-lg">
             <div className="px-4 py-3 border-b border-gray-200">
               <div className="flex items-center justify-between">
-                <h3 className="text-sm font-medium text-gray-900">ITEMS</h3>
+                <h3 className="text-sm font-medium text-gray-900">
+                  {showItemCategories ? 'ITEMS' : 'ITEM CATEGORIES'}
+                </h3>
                 <span className="text-xs text-gray-500">CPC</span>
               </div>
+              {!showItemCategories && (
+                <button
+                  onClick={() => {
+                    setShowItemCategories(true);
+                    setSelectedItemCategories(new Set());
+                    setItemFilter(''); // Clear item filter when going back
+                  }}
+                  className="mt-2 text-xs text-blue-600 hover:text-blue-800 flex items-center"
+                >
+                  <ChevronLeft className="h-3 w-3 mr-1" />
+                  Back to Categories
+                </button>
+              )}
             </div>
             <div className="p-4">
               <div className="mb-3">
                 <input
                   type="text"
-                  placeholder="Filter results e.g. maize, wheat"
+                  placeholder={showItemCategories ? "Filter categories e.g. crops" : "Filter items e.g. maize, wheat"}
+                  value={showItemCategories ? itemCategoryFilter : itemFilter}
+                  onChange={(e) => showItemCategories ? setItemCategoryFilter(e.target.value) : setItemFilter(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
                 />
               </div>
               <div className="max-h-48 overflow-y-auto space-y-2">
-                {itemCategories.map((category) => (
-                  <div key={category.id} className="flex items-center space-x-2">
-                    <ChevronRight className="h-4 w-4 text-gray-400" />
-                    <span className="text-sm text-gray-700">{category.name}</span>
+                {showItemCategories ? (
+                  getFilteredItemCategories().map((category) => (
+                    <button
+                      key={category.id}
+                      onClick={() => {
+                        console.log('Selected item category:', category);
+                        setSelectedItemCategories(new Set([category.id]));
+                        setShowItemCategories(false);
+                        setItemFilter(''); // Clear item filter when switching to items view
+                      }}
+                      className="w-full flex items-center space-x-2 p-2 hover:bg-gray-50 rounded-md text-left"
+                    >
+                      <ChevronRight className="h-4 w-4 text-gray-400" />
+                      <span className="text-sm text-gray-700">{category.name}</span>
+                      <span className="text-xs text-gray-500 ml-auto">
+                        ({getFilteredItems().filter(item => item.itemcategory === category.id).length} items)
+                      </span>
+                    </button>
+                  ))
+                ) : (
+                  getFilteredItems().slice(0, 20).map((item) => (
+                    <label key={item.id} className="flex items-center space-x-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={selectedItems.has(item.id)}
+                        onChange={() => toggleSelection(item.id, selectedItems, setSelectedItems)}
+                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <span className="text-sm text-gray-700">{item.name}</span>
+                    </label>
+                  ))
+                )}
+                {showItemCategories && getFilteredItemCategories().length === 0 && (
+                  <div className="text-sm text-gray-500 italic">No item categories found for this subdomain</div>
+                )}
+                {!showItemCategories && getFilteredItems().length === 0 && (
+                  <div className="text-sm text-gray-500 italic">
+                    No items found in selected category. 
+                    <button 
+                      onClick={() => {
+                        setShowItemCategories(true);
+                        setSelectedItemCategories(new Set());
+                      }}
+                      className="text-blue-600 hover:text-blue-800 ml-1"
+                    >
+                      Go back to categories
+                    </button>
                   </div>
-                ))}
+                )}
+                {!showItemCategories && getFilteredItems().length > 20 && (
+                  <div className="text-xs text-gray-500 italic mt-2">
+                    Showing first 20 items. Use filter to narrow down results.
+                  </div>
+                )}
               </div>
               <div className="flex justify-between mt-4 pt-3 border-t border-gray-200">
-                <button className="text-sm text-blue-600 hover:text-blue-800">Select All</button>
-                <button className="text-sm text-blue-600 hover:text-blue-800">Clear All</button>
+                {!showItemCategories && (
+                  <>
+                    <button
+                      onClick={() => selectAll(getFilteredItems(), selectedItems, setSelectedItems)}
+                      className="text-sm text-blue-600 hover:text-blue-800"
+                    >
+                      Select All
+                    </button>
+                    <button
+                      onClick={() => clearAll(setSelectedItems)}
+                      className="text-sm text-blue-600 hover:text-blue-800"
+                    >
+                      Clear All
+                    </button>
+                  </>
+                )}
+                {showItemCategories && (
+                  <div className="text-xs text-gray-500">
+                    Click a category to view items
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -389,11 +607,13 @@ const DomainGrid: React.FC<DomainGridProps> = ({ domains, loading, onDomainClick
                 <input
                   type="text"
                   placeholder="Filter results e.g. 2023"
+                  value={yearFilter}
+                  onChange={(e) => setYearFilter(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
                 />
               </div>
               <div className="max-h-48 overflow-y-auto space-y-2">
-                {[2023, 2022, 2021, 2020, 2019, 2018, 2017, 2016].map((year) => (
+                {filteredYears.map((year) => (
                   <label key={year} className="flex items-center space-x-2 cursor-pointer">
                     <input
                       type="checkbox"
@@ -406,17 +626,223 @@ const DomainGrid: React.FC<DomainGridProps> = ({ domains, loading, onDomainClick
                 ))}
               </div>
               <div className="flex justify-between mt-4 pt-3 border-t border-gray-200">
-                <button className="text-sm text-blue-600 hover:text-blue-800">Select All</button>
-                <button className="text-sm text-blue-600 hover:text-blue-800">Clear All</button>
+                <button
+                  onClick={() => selectAll(filteredYears.map(y => ({ id: y })), selectedYears, setSelectedYears)}
+                  className="text-sm text-blue-600 hover:text-blue-800"
+                >
+                  Select All
+                </button>
+                <button
+                  onClick={() => clearAll(setSelectedYears)}
+                  className="text-sm text-blue-600 hover:text-blue-800"
+                >
+                  Clear All
+                </button>
               </div>
             </div>
           </div>
+
+          {/* Output Options */}
+          <div className="mt-8 bg-white border border-gray-200 rounded-lg p-6">
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+              {/* Output Type */}
+              <div>
+                <h4 className="text-sm font-medium text-gray-900 mb-3">Output Type</h4>
+                <div className="space-y-2">
+                  <label className="flex items-center">
+                    <input
+                      type="radio"
+                      name="outputType"
+                      value="table"
+                      checked={outputType === 'table'}
+                      onChange={(e) => setOutputType(e.target.value as 'table')}
+                      className="mr-2 text-blue-600 focus:ring-blue-500"
+                    />
+                    <span className="text-sm text-gray-700">Table</span>
+                  </label>
+                  <label className="flex items-center">
+                    <input
+                      type="radio"
+                      name="outputType"
+                      value="pivot"
+                      checked={outputType === 'pivot'}
+                      onChange={(e) => setOutputType(e.target.value as 'pivot')}
+                      className="mr-2 text-blue-600 focus:ring-blue-500"
+                    />
+                    <span className="text-sm text-gray-700">Pivot</span>
+                  </label>
+                </div>
+              </div>
+
+              {/* File Type */}
+              <div>
+                <h4 className="text-sm font-medium text-gray-900 mb-3">File Type</h4>
+                <div className="space-y-2">
+                  <label className="flex items-center">
+                    <input
+                      type="radio"
+                      name="fileType"
+                      value="csv"
+                      checked={fileType === 'csv'}
+                      onChange={(e) => setFileType(e.target.value as 'csv')}
+                      className="mr-2 text-blue-600 focus:ring-blue-500"
+                    />
+                    <span className="text-sm text-gray-700">CSV</span>
+                  </label>
+                  <label className="flex items-center">
+                    <input
+                      type="radio"
+                      name="fileType"
+                      value="xls"
+                      checked={fileType === 'xls'}
+                      onChange={(e) => setFileType(e.target.value as 'xls')}
+                      className="mr-2 text-blue-600 focus:ring-blue-500"
+                    />
+                    <span className="text-sm text-gray-700">XLS</span>
+                  </label>
+                </div>
+              </div>
+
+              {/* Thousand Separator */}
+              <div>
+                <h4 className="text-sm font-medium text-gray-900 mb-3">Thousand Separator in 'Show Data'</h4>
+                <div className="space-y-2">
+                  <label className="flex items-center">
+                    <input
+                      type="radio"
+                      name="thousandSeparator"
+                      value="none"
+                      checked={thousandSeparator === 'none'}
+                      onChange={(e) => setThousandSeparator(e.target.value as 'none')}
+                      className="mr-2 text-blue-600 focus:ring-blue-500"
+                    />
+                    <span className="text-sm text-gray-700">None</span>
+                  </label>
+                  <label className="flex items-center">
+                    <input
+                      type="radio"
+                      name="thousandSeparator"
+                      value="comma"
+                      checked={thousandSeparator === 'comma'}
+                      onChange={(e) => setThousandSeparator(e.target.value as 'comma')}
+                      className="mr-2 text-blue-600 focus:ring-blue-500"
+                    />
+                    <span className="text-sm text-gray-700">Comma</span>
+                  </label>
+                  <label className="flex items-center">
+                    <input
+                      type="radio"
+                      name="thousandSeparator"
+                      value="period"
+                      checked={thousandSeparator === 'period'}
+                      onChange={(e) => setThousandSeparator(e.target.value as 'period')}
+                      className="mr-2 text-blue-600 focus:ring-blue-500"
+                    />
+                    <span className="text-sm text-gray-700">Period</span>
+                  </label>
+                </div>
+              </div>
+
+              {/* Output Formatting Options */}
+              <div>
+                <h4 className="text-sm font-medium text-gray-900 mb-3">Output Formatting Options</h4>
+                <div className="space-y-2">
+                  <label className="flex items-center">
+                    <input
+                      type="checkbox"
+                      checked={includeFlags}
+                      onChange={(e) => setIncludeFlags(e.target.checked)}
+                      className="mr-2 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    />
+                    <span className="text-sm text-gray-700">Flags</span>
+                  </label>
+                  <label className="flex items-center">
+                    <input
+                      type="checkbox"
+                      checked={includeNotes}
+                      onChange={(e) => setIncludeNotes(e.target.checked)}
+                      className="mr-2 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    />
+                    <span className="text-sm text-gray-700">Notes</span>
+                  </label>
+                  <label className="flex items-center">
+                    <input
+                      type="checkbox"
+                      checked={includeCodes}
+                      onChange={(e) => setIncludeCodes(e.target.checked)}
+                      className="mr-2 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    />
+                    <span className="text-sm text-gray-700">Codes</span>
+                  </label>
+                  <label className="flex items-center">
+                    <input
+                      type="checkbox"
+                      checked={includeUnits}
+                      onChange={(e) => setIncludeUnits(e.target.checked)}
+                      className="mr-2 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    />
+                    <span className="text-sm text-gray-700">Units</span>
+                  </label>
+                  <label className="flex items-center">
+                    <input
+                      type="checkbox"
+                      checked={includeNullValues}
+                      onChange={(e) => setIncludeNullValues(e.target.checked)}
+                      className="mr-2 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    />
+                    <span className="text-sm text-gray-700">Null Values</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="mt-8 flex justify-center space-x-4">
+              <button
+                onClick={handleShowData}
+                disabled={selectedCounties.size === 0 || selectedElements.size === 0 || selectedYears.size === 0}
+                className="flex items-center space-x-2 px-8 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+              >
+                <span>🔍</span>
+                <span>Show Data</span>
+              </button>
+              <button
+                onClick={handleDownloadData}
+                disabled={downloading || selectedCounties.size === 0 || selectedElements.size === 0 || selectedYears.size === 0}
+                className="flex items-center space-x-2 px-8 py-3 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+              >
+                {downloading ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                    <span>Downloading...</span>
+                  </>
+                ) : (
+                  <>
+                    <Download className="h-4 w-4" />
+                    <span>Download Data</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
         </div>
+
+        {/* Data Viewer Modal */}
+        {showDataViewer && selectedSubdomain && (
+          <DataViewer
+            selectedCounties={selectedCounties}
+            selectedElements={selectedElements}
+            selectedItems={selectedItems}
+            selectedYears={selectedYears}
+            subdomainId={selectedSubdomain.id}
+            onClose={() => setShowDataViewer(false)}
+          />
+        )}
       </div>
     );
   }
 
-  if (domainsWithSubdomains.length === 0) {
+  if (domains.length === 0) {
     return (
       <div className="text-center py-12">
         <div className="text-gray-400 text-4xl mb-4">📊</div>
@@ -428,53 +854,56 @@ const DomainGrid: React.FC<DomainGridProps> = ({ domains, loading, onDomainClick
 
   return (
     <div className="space-y-4">
-      {domainsWithSubdomains.map((domain) => (
-        <div key={domain.id} className="bg-white border border-gray-200 rounded-lg">
-          <button
-            onClick={() => toggleDomain(domain.id)}
-            className="w-full px-6 py-4 text-left hover:bg-gray-50 transition-colors flex items-center justify-between"
-          >
-            <div className="flex items-center space-x-4">
-              {expandedDomains.has(domain.id) ? (
-                <ChevronDown className="h-5 w-5 text-gray-400" />
-              ) : (
-                <ChevronRight className="h-5 w-5 text-gray-400" />
-              )}
-              <div className="text-2xl">{getDomainIcon(domain.name)}</div>
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900">{domain.name}</h3>
-                <p className="text-sm text-gray-600">{domain.subsector}</p>
+      {domains.map((domain) => {
+        const domainSubdomains = getSubdomainsByDomain(domain.id);
+        return (
+          <div key={domain.id} className="bg-white border border-gray-200 rounded-lg">
+            <button
+              onClick={() => toggleDomain(domain.id)}
+              className="w-full px-6 py-4 text-left hover:bg-gray-50 transition-colors flex items-center justify-between"
+            >
+              <div className="flex items-center space-x-4">
+                {expandedDomains.has(domain.id) ? (
+                  <ChevronDown className="h-5 w-5 text-gray-400" />
+                ) : (
+                  <ChevronRight className="h-5 w-5 text-gray-400" />
+                )}
+                <div className="text-2xl">{getDomainIcon(domain.name)}</div>
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900">{domain.name}</h3>
+                  <p className="text-sm text-gray-600">{getSubsectorName(domain.subsector)}</p>
+                </div>
               </div>
-            </div>
-            <div className="text-sm text-gray-500">
-              {domain.subdomains.length} subdomains
-            </div>
-          </button>
+              <div className="text-sm text-gray-500">
+                {domainSubdomains.length} subdomains
+              </div>
+            </button>
 
-          {expandedDomains.has(domain.id) && (
-            <div className="px-6 pb-6 border-t border-gray-100">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
-                {domain.subdomains.map((subdomain) => (
-                  <button
-                    key={subdomain.id}
-                    onClick={() => handleSubdomainClick(subdomain)}
-                    className="text-left p-3 rounded-md hover:bg-blue-50 border border-gray-200 hover:border-blue-300 transition-colors"
-                  >
-                    <div className="text-blue-600 hover:text-blue-800 font-medium">
-                      {subdomain.name}
-                    </div>
-                    {subdomain.description && (
-                      <div className="text-sm text-gray-600 mt-1">
-                        {subdomain.description}
+            {expandedDomains.has(domain.id) && (
+              <div className="px-6 pb-6 border-t border-gray-100">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
+                  {domainSubdomains.map((subdomain) => (
+                    <button
+                      key={subdomain.id}
+                      onClick={() => handleSubdomainClick(subdomain)}
+                      className="text-left p-3 rounded-md hover:bg-blue-50 border border-gray-200 hover:border-blue-300 transition-colors"
+                    >
+                      <div className="text-blue-600 hover:text-blue-800 font-medium">
+                        {subdomain.name}
                       </div>
-                    )}
-                  </button>
-                ))}
+                      {subdomain.description && (
+                        <div className="text-sm text-gray-600 mt-1">
+                          {subdomain.description}
+                        </div>
+                      )}
+                    </button>
+                  ))}
+                </div>
               </div>
-            </div>
-          )}
-        </div>
-      ))}
+            )}
+          </div>
+        );
+      })}
     </div>
   );
 };

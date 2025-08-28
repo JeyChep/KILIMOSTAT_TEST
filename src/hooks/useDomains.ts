@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Domain, SearchFilters } from '../types';
-import { apiService } from '../services/api';
+import { SearchFilters } from '../types';
+import { apiService, Domain } from '../services/apiService';
 
 export const useDomains = () => {
   const [domains, setDomains] = useState<Domain[]>([]);
@@ -17,21 +17,15 @@ export const useDomains = () => {
       setLoading(true);
       setError(null);
 
-      // Use mock data for now - replace with API call when backend is ready
-      const mockDomains = getMockDomains();
-      let filteredDomains = mockDomains;
+      // Fetch domains from Django API
+      const domainsData = await apiService.getDomains();
+      let filteredDomains = domainsData;
 
       // Apply filters to mock data
       if (filters.query) {
         filteredDomains = filteredDomains.filter(domain =>
           domain.name.toLowerCase().includes(filters.query.toLowerCase()) ||
-          domain.code.toLowerCase().includes(filters.query.toLowerCase())
-        );
-      }
-
-      if (filters.subsector) {
-        filteredDomains = filteredDomains.filter(domain =>
-          domain.subsector === filters.subsector
+          (domain.code && domain.code.toLowerCase().includes(filters.query.toLowerCase()))
         );
       }
 
@@ -39,7 +33,7 @@ export const useDomains = () => {
       if (filters.sortBy === 'name') {
         filteredDomains.sort((a, b) => a.name.localeCompare(b.name));
       } else if (filters.sortBy === 'code') {
-        filteredDomains.sort((a, b) => a.code.localeCompare(b.code));
+        filteredDomains.sort((a, b) => (a.code || '').localeCompare(b.code || ''));
       }
 
       setDomains(filteredDomains);
@@ -61,18 +55,14 @@ export const useDomains = () => {
 
   const exportDomains = useCallback(async (domainIds?: number[]) => {
     try {
-      // Mock export functionality - replace with API call when backend is ready
-      // const blob = await apiService.exportDomains(domainIds);
-      
-      // Create a mock CSV content for export
       const domainsToExport = domainIds 
         ? domains.filter(domain => domainIds.includes(domain.id))
         : domains;
       
       const csvContent = [
-        'ID,Name,Code,Subsector',
+        'ID,Name,Code,Description,Subsector',
         ...domainsToExport.map(domain => 
-          `${domain.id},"${domain.name}","${domain.code}","${domain.subsector}"`
+          `${domain.id},"${domain.name}","${domain.code || ''}","${domain.description || ''}","${domain.subsector}"`
         )
       ].join('\n');
       
@@ -101,16 +91,3 @@ export const useDomains = () => {
     exportDomains,
   };
 };
-
-// Mock data for fallback
-const getMockDomains = (): Domain[] => [
-  { id: 1, name: 'Crops', code: 'CR', subsector: 'Crops' },
-  { id: 2, name: 'Livestock', code: 'LS', subsector: 'Livestock' },
-  { id: 3, name: 'Fisheries', code: 'FS', subsector: 'Fisheries' },
-  { id: 4, name: 'Land, Inputs and Sustainability', code: 'LIS', subsector: 'Land, Inputs and Sustainability' },
-  { id: 5, name: 'Investments and Financing', code: 'IF', subsector: 'Investments and Financing' },
-  { id: 6, name: 'Trade', code: 'TR', subsector: 'Trade' },
-  { id: 7, name: 'Prices', code: 'PR', subsector: 'Prices' },
-  { id: 8, name: 'Early Warning, Nutrition and Food Security', code: 'EWNFS', subsector: 'Early Warning, Nutrition and Food Security' },
-  { id: 9, name: 'Population and Employment', code: 'PE', subsector: 'Population and Employment' },
-];
