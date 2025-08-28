@@ -345,9 +345,12 @@ const DomainGrid: React.FC<DomainGridProps> = ({ loading: externalLoading, onDom
         </div>
 
         {/* Data Selection Interface */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="flex gap-6">
+          {/* Left side - 2x2 Grid for Counties, Elements, Items, Years */}
+          <div className="flex-1">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
           {/* Counties */}
-          <div className="bg-white border border-gray-200 rounded-lg">
+              <div className="bg-white border border-gray-200 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200">
             <div className="px-4 py-3 border-b border-gray-200">
               <div className="flex items-center justify-between">
                 <h3 className="text-sm font-medium text-gray-900">COUNTIES</h3>
@@ -398,7 +401,7 @@ const DomainGrid: React.FC<DomainGridProps> = ({ loading: externalLoading, onDom
           </div>
 
           {/* Elements */}
-          <div className="bg-white border border-gray-200 rounded-lg">
+              <div className="bg-white border border-gray-200 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200">
             <div className="px-4 py-3 border-b border-gray-200">
               <h3 className="text-sm font-medium text-gray-900">ELEMENTS</h3>
             </div>
@@ -442,48 +445,8 @@ const DomainGrid: React.FC<DomainGridProps> = ({ loading: externalLoading, onDom
             </div>
           </div>
 
-          {/* Sidebar Info */}
-          <div className="space-y-6">
-            <div className="bg-white border border-gray-200 rounded-lg p-4">
-              <h3 className="text-lg font-medium text-gray-900 mb-2">{selectedSubdomain.name}</h3>
-              <p className="text-sm text-gray-600 mb-3">
-                {selectedSubdomain.description || 'Agricultural and livestock statistics covering various indicators and measurements.'}
-              </p>
-              <button className="text-blue-600 hover:text-blue-800 text-sm">Show More</button>
-            </div>
-
-            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-              <h4 className="text-sm font-medium text-gray-900 mb-3 flex items-center">
-                <Download className="h-4 w-4 mr-2" />
-                Bulk Downloads
-              </h4>
-              <div className="space-y-2">
-                <div className="flex justify-between items-center">
-                  <button className="text-blue-600 hover:text-blue-800 text-sm">All Data</button>
-                  <span className="text-xs text-gray-500">23.9 MB</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <button className="text-blue-600 hover:text-blue-800 text-sm">All Data Normalized</button>
-                  <span className="text-xs text-gray-500">32.33 MB</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <button className="text-blue-600 hover:text-blue-800 text-sm">Kenya</button>
-                  <span className="text-xs text-gray-500">4.1 MB</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white border border-gray-200 rounded-lg p-4">
-              <h4 className="text-sm font-medium text-gray-900 mb-2">Last Update</h4>
-              <p className="text-sm text-gray-600">June 11, 2025</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Items and Years */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
           {/* Items */}
-          <div className="bg-white border border-gray-200 rounded-lg">
+              <div className="bg-white border border-gray-200 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200">
             <div className="px-4 py-3 border-b border-gray-200">
               <div className="flex items-center justify-between">
                 <h3 className="text-sm font-medium text-gray-900">
@@ -598,7 +561,7 @@ const DomainGrid: React.FC<DomainGridProps> = ({ loading: externalLoading, onDom
           </div>
 
           {/* Years */}
-          <div className="bg-white border border-gray-200 rounded-lg">
+              <div className="bg-white border border-gray-200 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200">
             <div className="px-4 py-3 border-b border-gray-200">
               <h3 className="text-sm font-medium text-gray-900">YEARS</h3>
             </div>
@@ -641,9 +604,10 @@ const DomainGrid: React.FC<DomainGridProps> = ({ loading: externalLoading, onDom
               </div>
             </div>
           </div>
+            </div>
 
           {/* Output Options */}
-          <div className="mt-8 bg-white border border-gray-200 rounded-lg p-6">
+            <div className="bg-white border border-gray-200 rounded-lg shadow-md p-6">
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
               {/* Output Type */}
               <div>
@@ -797,7 +761,7 @@ const DomainGrid: React.FC<DomainGridProps> = ({ loading: externalLoading, onDom
             </div>
 
             {/* Action Buttons */}
-            <div className="mt-8 flex justify-center space-x-4">
+            <div className="mt-6 flex justify-center space-x-4">
               <button
                 onClick={handleShowData}
                 disabled={selectedCounties.size === 0 || selectedElements.size === 0 || selectedYears.size === 0}
@@ -825,6 +789,68 @@ const DomainGrid: React.FC<DomainGridProps> = ({ loading: externalLoading, onDom
               </button>
             </div>
           </div>
+          </div>
+
+          {/* Right Sidebar - Long card matching the height of the left section */}
+          <div className="w-80 flex-shrink-0">
+            <div className="bg-white border border-gray-200 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 h-full">
+              <div className="p-6 h-full flex flex-col">
+                {/* Domain Info Section */}
+                <div className="mb-6">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-3">{selectedSubdomain.name}</h3>
+                  <p className="text-sm text-gray-600 leading-relaxed mb-4">
+                    {selectedSubdomain.description || 'Agricultural and livestock statistics covering various indicators and measurements for comprehensive data analysis and reporting.'}
+                  </p>
+                  <button className="text-blue-600 hover:text-blue-800 text-sm font-medium">Show More</button>
+                </div>
+
+                {/* Bulk Downloads Section */}
+                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+                  <h4 className="text-sm font-semibold text-gray-900 mb-4 flex items-center">
+                    <Download className="h-4 w-4 mr-2 text-yellow-600" />
+                    Bulk Downloads
+                  </h4>
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center py-1">
+                      <button className="text-blue-600 hover:text-blue-800 text-sm font-medium">All Data</button>
+                      <span className="text-xs text-gray-600 font-mono bg-gray-100 px-2 py-1 rounded">23.9 MB</span>
+                    </div>
+                    <div className="flex justify-between items-center py-1">
+                      <button className="text-blue-600 hover:text-blue-800 text-sm font-medium">All Data Normalized</button>
+                      <span className="text-xs text-gray-600 font-mono bg-gray-100 px-2 py-1 rounded">32.33 MB</span>
+                    </div>
+                    <div className="flex justify-between items-center py-1">
+                      <button className="text-blue-600 hover:text-blue-800 text-sm font-medium">Kenya</button>
+                      <span className="text-xs text-gray-600 font-mono bg-gray-100 px-2 py-1 rounded">4.1 MB</span>
+                    </div>
+                    <div className="flex justify-between items-center py-1">
+                      <button className="text-blue-600 hover:text-blue-800 text-sm font-medium">Africa</button>
+                      <span className="text-xs text-gray-600 font-mono bg-gray-100 px-2 py-1 rounded">7.29 MB</span>
+                    </div>
+                    <div className="flex justify-between items-center py-1">
+                      <button className="text-blue-600 hover:text-blue-800 text-sm font-medium">Americas</button>
+                      <span className="text-xs text-gray-600 font-mono bg-gray-100 px-2 py-1 rounded">3.42 MB</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Last Update Section */}
+                <div className="mb-6">
+                  <h4 className="text-sm font-semibold text-gray-900 mb-2">Last Update</h4>
+                  <p className="text-sm text-blue-600 font-medium">June 11, 2025</p>
+                </div>
+
+                {/* Related Documents Section */}
+                <div className="flex-1">
+                  <h4 className="text-sm font-semibold text-gray-900 mb-3">Related Documents</h4>
+                  <div className="space-y-3">
+                    <div className="flex items-start space-x-2">
+                      <div className="w-4 h-4 bg-blue-100 rounded flex-shrink-0 mt-0.5"></div>
+                      <button className="text-blue-600 hover:text-blue-800 text-sm text-left">
+                        Change of units for yield/carcass weight
+                      </button>
+                    </div>
+                    <div className="flex items-start space-x-2">
         </div>
 
         {/* Data Viewer Modal */}
