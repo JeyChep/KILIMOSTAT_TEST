@@ -57,6 +57,12 @@ const DataViewer: React.FC<DataViewerProps> = ({
     const loadData = async () => {
       if (selectedCounties.size === 0 || selectedElements.size === 0 || selectedYears.size === 0) {
         console.log('Missing required selections for data loading');
+<<<<<<< HEAD
+=======
+        console.log('Counties selected:', selectedCounties.size);
+        console.log('Elements selected:', selectedElements.size);
+        console.log('Years selected:', selectedYears.size);
+>>>>>>> 468f294544c03a8ff29ab3dc0ad68de3d2c83887
         return;
       }
 
@@ -73,6 +79,20 @@ const DataViewer: React.FC<DataViewerProps> = ({
         };
 
         console.log('Loading data with params:', params);
+<<<<<<< HEAD
+=======
+        console.log('Subdomain ID:', subdomainId);
+        
+        // Test if basic API endpoints work first
+        console.log('Testing basic API connectivity...');
+        try {
+          const testCounties = await apiService.getCounties();
+          console.log('Counties API test successful:', testCounties.length, 'counties loaded');
+        } catch (testError) {
+          console.error('Counties API test failed:', testError);
+        }
+        
+>>>>>>> 468f294544c03a8ff29ab3dc0ad68de3d2c83887
         const result = await apiService.getKilimoData(params);
         console.log('Data loaded:', result.length, 'records');
         setData(result);
@@ -80,7 +100,13 @@ const DataViewer: React.FC<DataViewerProps> = ({
         setCurrentPage(1);
       } catch (err) {
         console.error('Failed to load data:', err);
+<<<<<<< HEAD
         setError(err instanceof Error ? err.message : 'Failed to load data');
+=======
+        const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
+        console.error('Error details:', errorMessage);
+        setError(`Failed to load data from API: ${errorMessage}. Please check your network connection and API endpoint.`);
+>>>>>>> 468f294544c03a8ff29ab3dc0ad68de3d2c83887
       } finally {
         setLoading(false);
       }

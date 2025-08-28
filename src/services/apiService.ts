@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 const API_BASE_URL = 'https://10.101.100.251/en/kilimostat-api';
+=======
+const API_BASE_URL = 'http://localhost:8000/en/kilimostat-api';
+>>>>>>> 468f294544c03a8ff29ab3dc0ad68de3d2c83887
 
 export interface ApiEndpoints {
   counties: string;
@@ -134,11 +138,24 @@ class ApiService {
 
   private async request<T>(url: string): Promise<T[]> {
     try {
+<<<<<<< HEAD
       const response = await fetch(url);
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
       const data = await response.json();
+=======
+      console.log('Making request to:', url);
+      const response = await fetch(url);
+      console.log(`Response for ${url}:`, response.status, response.statusText);
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error(`Error response for ${url}:`, errorText);
+        throw new Error(`HTTP ${response.status}: ${response.statusText}. URL: ${url}`);
+      }
+      const data = await response.json();
+      console.log(`Data received from ${url}:`, Array.isArray(data) ? `Array with ${data.length} items` : typeof data);
+>>>>>>> 468f294544c03a8ff29ab3dc0ad68de3d2c83887
       return Array.isArray(data) ? data : data.results || [];
     } catch (error) {
       console.error(`Failed to fetch data from ${url}:`, error);
@@ -148,11 +165,19 @@ class ApiService {
 
   async getCounties(): Promise<County[]> {
     const endpoints = await this.getEndpoints();
+<<<<<<< HEAD
+=======
+    console.log('Fetching counties from:', endpoints.counties);
+>>>>>>> 468f294544c03a8ff29ab3dc0ad68de3d2c83887
     return this.request<County>(endpoints.counties);
   }
 
   async getDomains(): Promise<Domain[]> {
     const endpoints = await this.getEndpoints();
+<<<<<<< HEAD
+=======
+    console.log('Fetching domains from:', endpoints.domains);
+>>>>>>> 468f294544c03a8ff29ab3dc0ad68de3d2c83887
     return this.request<Domain>(endpoints.domains);
   }
 
@@ -217,6 +242,11 @@ class ApiService {
 
   async getKilimoData(params: KilimoDataParams): Promise<KilimoDataRecord[]> {
     const endpoints = await this.getEndpoints();
+<<<<<<< HEAD
+=======
+    console.log('Available endpoints:', endpoints);
+    
+>>>>>>> 468f294544c03a8ff29ab3dc0ad68de3d2c83887
     const searchParams = new URLSearchParams();
     
     if (params.counties?.length) {
@@ -238,6 +268,7 @@ class ApiService {
     const url = `${endpoints.kilimodata}?${searchParams.toString()}`;
     try {
       console.log('Fetching data from:', url);
+<<<<<<< HEAD
       const response = await fetch(url);
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
@@ -254,10 +285,43 @@ class ApiService {
         return data.data;
       } else {
         console.warn('Unexpected API response format:', data);
+=======
+      console.log('Search params:', searchParams.toString());
+      console.log('Request parameters:', params);
+      
+      const response = await fetch(url);
+      console.log('Response status:', response.status);
+      console.log('Response headers:', Object.fromEntries(response.headers.entries()));
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Error response body:', errorText);
+        throw new Error(`HTTP ${response.status}: ${response.statusText}. Response: ${errorText}`);
+      }
+      const data = await response.json();
+      console.log('API Response:', data);
+      console.log('Response type:', typeof data);
+      console.log('Is array:', Array.isArray(data));
+      
+      // Handle different response formats
+      if (Array.isArray(data)) {
+        console.log('Returning array data, length:', data.length);
+        return data;
+      } else if (data.results && Array.isArray(data.results)) {
+        console.log('Returning data.results, length:', data.results.length);
+        return data.results;
+      } else if (data.data && Array.isArray(data.data)) {
+        console.log('Returning data.data, length:', data.data.length);
+        return data.data;
+      } else {
+        console.warn('Unexpected API response format:', data);
+        console.warn('Available keys:', Object.keys(data));
+>>>>>>> 468f294544c03a8ff29ab3dc0ad68de3d2c83887
         return [];
       }
     } catch (error) {
       console.error(`Failed to fetch kilimo data from ${url}:`, error);
+<<<<<<< HEAD
       // Return mock data for testing
       return this.getMockKilimoData(params);
     }
@@ -297,6 +361,15 @@ class ApiService {
     
     return mockData;
   }
+=======
+      if (error instanceof TypeError && error.message.includes('fetch')) {
+        console.error('Network error - check if the API server is running and accessible');
+      }
+      throw error;
+    }
+  }
+
+>>>>>>> 468f294544c03a8ff29ab3dc0ad68de3d2c83887
   async downloadKilimoData(params: KilimoDataParams, options: DataExportOptions): Promise<Blob> {
     try {
       // First get the data
