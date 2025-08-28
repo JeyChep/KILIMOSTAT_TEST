@@ -81,7 +81,6 @@ export const useDomains = () => {
       a.click();
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
-    }
     } catch (err) {
       console.error('Failed to export domains:', err);
       setError(err instanceof Error ? err.message : 'Failed to export domains');
@@ -98,6 +97,3 @@ export const useDomains = () => {
     exportDomains,
   };
 };
-  }
-  )
-}
