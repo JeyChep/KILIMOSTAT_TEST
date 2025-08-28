@@ -280,11 +280,7 @@ const DomainGrid: React.FC<DomainGridProps> = ({ loading: externalLoading, onDom
       console.log('Download completed successfully');
     } catch (error) {
       console.error('Download failed:', error);
-<<<<<<< HEAD
       alert(`Download failed: ${error instanceof Error ? error.message : 'Unknown error'}. Please try again.`);
-=======
-      alert(`Download failed: ${error instanceof Error ? error.message : 'Unknown error'}. Please check your API connection and try again.`);
->>>>>>> 468f294544c03a8ff29ab3dc0ad68de3d2c83887
     } finally {
       setDownloading(false);
     }

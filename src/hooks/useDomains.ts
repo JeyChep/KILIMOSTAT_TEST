@@ -1,10 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { SearchFilters } from '../types';
-<<<<<<< HEAD
 import { apiService, Domain } from '../services/apiService';
-=======
-import { Domain, apiService } from '../services/apiService';
->>>>>>> 468f294544c03a8ff29ab3dc0ad68de3d2c83887
 
 export const useDomains = () => {
   const [domains, setDomains] = useState<Domain[]>([]);
@@ -21,28 +17,15 @@ export const useDomains = () => {
       setLoading(true);
       setError(null);
 
-<<<<<<< HEAD
       // Fetch domains from Django API
-=======
-      // Fetch domains from API
->>>>>>> 468f294544c03a8ff29ab3dc0ad68de3d2c83887
       const domainsData = await apiService.getDomains();
       let filteredDomains = domainsData;
 
-      // Apply filters
+      // Apply filters to mock data
       if (filters.query) {
         filteredDomains = filteredDomains.filter(domain =>
           domain.name.toLowerCase().includes(filters.query.toLowerCase()) ||
           (domain.code && domain.code.toLowerCase().includes(filters.query.toLowerCase()))
-<<<<<<< HEAD
-=======
-        );
-      }
-
-      if (filters.subsector) {
-        filteredDomains = filteredDomains.filter(domain =>
-          domain.subsector.toString() === filters.subsector
->>>>>>> 468f294544c03a8ff29ab3dc0ad68de3d2c83887
         );
       }
 
