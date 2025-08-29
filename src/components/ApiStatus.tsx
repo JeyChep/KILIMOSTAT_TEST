@@ -6,32 +6,17 @@ interface ApiStatusProps {
 }
 
 const ApiStatus: React.FC<ApiStatusProps> = ({ className = '' }) => {
-  const [apiStatus, setApiStatus] = useState<'checking' | 'online' | 'offline' | 'error'>('checking');
+  const [apiStatus, setApiStatus] = useState<'checking' | 'online' | 'offline' | 'error'>('online');
   const [lastChecked, setLastChecked] = useState<Date | null>(null);
 
   const checkApiStatus = async () => {
-    try {
-      setApiStatus('checking');
-      const response = await fetch('https://kilimostat.kilimo.go.ke/en/kilimostat-api/', {
-        method: 'HEAD',
-        mode: 'no-cors' // This will help with CORS issues
-      });
-      
-      // With no-cors mode, we can't read the response, but if it doesn't throw, the server is reachable
-      setApiStatus('online');
-      setLastChecked(new Date());
-    } catch (error) {
-      console.error('API status check failed:', error);
-      setApiStatus('offline');
-      setLastChecked(new Date());
-    }
+    // Since we're using mock data, always show as online
+    setApiStatus('online');
+    setLastChecked(new Date());
   };
 
   useEffect(() => {
     checkApiStatus();
-    // Check every 30 seconds
-    const interval = setInterval(checkApiStatus, 30000);
-    return () => clearInterval(interval);
   }, []);
 
   const getStatusIcon = () => {
@@ -54,9 +39,9 @@ const ApiStatus: React.FC<ApiStatusProps> = ({ className = '' }) => {
       case 'checking':
         return 'Checking API...';
       case 'online':
-        return 'API Connected';
+        return 'Mock Data Mode';
       case 'offline':
-        return 'API Offline - Using Local Data';
+        return 'Using Mock Data';
       case 'error':
         return 'API Error';
       default:
@@ -83,15 +68,9 @@ const ApiStatus: React.FC<ApiStatusProps> = ({ className = '' }) => {
       <span className="text-sm font-medium">{getStatusText()}</span>
       {lastChecked && (
         <span className="text-xs opacity-75">
-          {lastChecked.toLocaleTimeString()}
+          Ready
         </span>
       )}
-      <button
-        onClick={checkApiStatus}
-        className="text-xs hover:underline opacity-75"
-      >
-        Refresh
-      </button>
     </div>
   );
 };

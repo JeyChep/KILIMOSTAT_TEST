@@ -1,4 +1,8 @@
 const API_BASE_URL = 'https://kilimostat.kilimo.go.ke/en/kilimostat-api';
+import { mockDataService } from './mockDataService';
+
+// Configuration flag to switch between real API and mock data
+const USE_MOCK_DATA = true;
 
 export interface ApiEndpoints {
   counties: string;
@@ -114,7 +118,28 @@ export interface DataExportOptions {
 class ApiService {
   private endpoints: ApiEndpoints | null = null;
 
+  // Check if we should use mock data
+  private shouldUseMockData(): boolean {
+    return USE_MOCK_DATA || import.meta.env.DEV;
+  }
+
   private async getEndpoints(): Promise<ApiEndpoints> {
+    if (this.shouldUseMockData()) {
+      // Return mock endpoints (not actually used)
+      return {
+        counties: '',
+        institutions: '',
+        subsectors: '',
+        domains: '',
+        subdomains: '',
+        elements: '',
+        itemcategories: '',
+        items: '',
+        units: '',
+        kilimodata: ''
+      };
+    }
+
     if (this.endpoints) {
       return this.endpoints;
     }
@@ -167,61 +192,97 @@ class ApiService {
   }
 
   async getCounties(): Promise<County[]> {
+    if (this.shouldUseMockData()) {
+      return mockDataService.getCounties();
+    }
     const endpoints = await this.getEndpoints();
     return this.request<County>(endpoints.counties);
   }
 
   async getDomains(): Promise<Domain[]> {
+    if (this.shouldUseMockData()) {
+      return mockDataService.getDomains();
+    }
     const endpoints = await this.getEndpoints();
     return this.request<Domain>(endpoints.domains);
   }
 
   async getSubdomains(): Promise<SubDomain[]> {
+    if (this.shouldUseMockData()) {
+      return mockDataService.getSubdomains();
+    }
     const endpoints = await this.getEndpoints();
     return this.request<SubDomain>(endpoints.subdomains);
   }
 
   async getElements(): Promise<Element[]> {
+    if (this.shouldUseMockData()) {
+      return mockDataService.getElements();
+    }
     const endpoints = await this.getEndpoints();
     return this.request<Element>(endpoints.elements);
   }
 
   async getItems(): Promise<Item[]> {
+    if (this.shouldUseMockData()) {
+      return mockDataService.getItems();
+    }
     const endpoints = await this.getEndpoints();
     return this.request<Item>(endpoints.items);
   }
 
   async getItemCategories(): Promise<ItemCategory[]> {
+    if (this.shouldUseMockData()) {
+      return mockDataService.getItemCategories();
+    }
     const endpoints = await this.getEndpoints();
     return this.request<ItemCategory>(endpoints.itemcategories);
   }
 
   async getUnits(): Promise<Unit[]> {
+    if (this.shouldUseMockData()) {
+      return mockDataService.getUnits();
+    }
     const endpoints = await this.getEndpoints();
     return this.request<Unit>(endpoints.units);
   }
 
   async getSubsectors(): Promise<Subsector[]> {
+    if (this.shouldUseMockData()) {
+      return mockDataService.getSubsectors();
+    }
     const endpoints = await this.getEndpoints();
     return this.request<Subsector>(endpoints.subsectors);
   }
 
   async getSubdomainsByDomain(domainId: number): Promise<SubDomain[]> {
+    if (this.shouldUseMockData()) {
+      return mockDataService.getSubdomainsByDomain(domainId);
+    }
     const subdomains = await this.getSubdomains();
     return subdomains.filter(subdomain => subdomain.domain === domainId);
   }
 
   async getElementsBySubdomain(subdomainId: number): Promise<Element[]> {
+    if (this.shouldUseMockData()) {
+      return mockDataService.getElementsBySubdomain(subdomainId);
+    }
     const elements = await this.getElements();
     return elements.filter(element => element.subdomain === subdomainId);
   }
 
   async getItemsByCategory(categoryId: number): Promise<Item[]> {
+    if (this.shouldUseMockData()) {
+      return mockDataService.getItemsByCategory(categoryId);
+    }
     const items = await this.getItems();
     return items.filter(item => item.itemcategory === categoryId);
   }
 
   async getItemsBySubdomain(subdomainId: number): Promise<Item[]> {
+    if (this.shouldUseMockData()) {
+      return mockDataService.getItemsBySubdomain(subdomainId);
+    }
     const items = await this.getItems();
     const elements = await this.getElementsBySubdomain(subdomainId);
     const elementIds = elements.map(e => e.id);
@@ -229,6 +290,9 @@ class ApiService {
   }
 
   async getItemCategoriesBySubdomain(subdomainId: number): Promise<ItemCategory[]> {
+    if (this.shouldUseMockData()) {
+      return mockDataService.getItemCategoriesBySubdomain(subdomainId);
+    }
     const items = await this.getItemsBySubdomain(subdomainId);
     const categoryIds = [...new Set(items.map(item => item.itemcategory))];
     const allCategories = await this.getItemCategories();
@@ -236,6 +300,10 @@ class ApiService {
   }
 
   async getKilimoData(params: KilimoDataParams): Promise<KilimoDataRecord[]> {
+    if (this.shouldUseMockData()) {
+      return mockDataService.getKilimoData(params);
+    }
+
     try {
       const endpoints = await this.getEndpoints();
       const searchParams = new URLSearchParams();
@@ -328,6 +396,10 @@ class ApiService {
     return mockData;
   }
   async downloadKilimoData(params: KilimoDataParams, options: DataExportOptions): Promise<Blob> {
+    if (this.shouldUseMockData()) {
+      return mockDataService.downloadKilimoData(params, options);
+    }
+
     try {
       // First get the data
       const data = await this.getKilimoData(params);

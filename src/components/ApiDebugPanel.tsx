@@ -12,13 +12,13 @@ const ApiDebugPanel: React.FC = () => {
     const results: { [key: string]: any } = {};
 
     const endpoints = [
-      { name: 'Counties', method: () => apiService.getCounties() },
-      { name: 'Domains', method: () => apiService.getDomains() },
-      { name: 'Subdomains', method: () => apiService.getSubdomains() },
-      { name: 'Elements', method: () => apiService.getElements() },
-      { name: 'Items', method: () => apiService.getItems() },
-      { name: 'Units', method: () => apiService.getUnits() },
-      { name: 'Subsectors', method: () => apiService.getSubsectors() },
+      { name: 'Counties (Mock)', method: () => apiService.getCounties() },
+      { name: 'Domains (Mock)', method: () => apiService.getDomains() },
+      { name: 'Subdomains (Mock)', method: () => apiService.getSubdomains() },
+      { name: 'Elements (Mock)', method: () => apiService.getElements() },
+      { name: 'Items (Mock)', method: () => apiService.getItems() },
+      { name: 'Units (Mock)', method: () => apiService.getUnits() },
+      { name: 'Subsectors (Mock)', method: () => apiService.getSubsectors() },
     ];
 
     for (const endpoint of endpoints) {
@@ -51,14 +51,14 @@ const ApiDebugPanel: React.FC = () => {
       });
       const endTime = Date.now();
       
-      results['KilimoData'] = {
+      results['KilimoData (Mock)'] = {
         status: 'success',
         count: kilimoData.length,
         responseTime: endTime - startTime,
         sample: kilimoData.slice(0, 2)
       };
     } catch (error) {
-      results['KilimoData'] = {
+      results['KilimoData (Mock)'] = {
         status: 'error',
         error: error instanceof Error ? error.message : 'Unknown error'
       };
@@ -129,10 +129,9 @@ const ApiDebugPanel: React.FC = () => {
                   <div className="text-xs text-yellow-800">
                     <p className="font-medium mb-1">Troubleshooting Tips:</p>
                     <ul className="space-y-1 text-xs">
-                      <li>• Check if API server is running</li>
-                      <li>• Verify network connectivity</li>
-                      <li>• Check browser console for CORS errors</li>
-                      <li>• Ensure API URL is correct</li>
+                      <li>• Currently using mock data for development</li>
+                      <li>• All data is simulated for testing purposes</li>
+                      <li>• Switch to real API when ready for production</li>
                     </ul>
                   </div>
                 </div>
