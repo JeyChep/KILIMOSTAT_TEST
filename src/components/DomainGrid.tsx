@@ -55,6 +55,7 @@ const DomainGrid: React.FC<DomainGridProps> = ({ loading: externalLoading, onDom
       try {
         setLoading(true);
         setError(null);
+        console.log('Loading domain grid data...');
 
         const [domainsData, subsectorsData, subdomainsData, countiesData, elementsData, itemsData, itemCategoriesData] = await Promise.all([
           apiService.getDomains(),
@@ -66,6 +67,16 @@ const DomainGrid: React.FC<DomainGridProps> = ({ loading: externalLoading, onDom
           apiService.getItemCategories()
         ]);
 
+        console.log('Data loaded successfully:', {
+          domains: domainsData.length,
+          subsectors: subsectorsData.length,
+          subdomains: subdomainsData.length,
+          counties: countiesData.length,
+          elements: elementsData.length,
+          items: itemsData.length,
+          itemCategories: itemCategoriesData.length
+        });
+
         setDomains(domainsData);
         setSubsectors(subsectorsData);
         setSubdomains(subdomainsData);
@@ -75,7 +86,11 @@ const DomainGrid: React.FC<DomainGridProps> = ({ loading: externalLoading, onDom
         setItemCategories(itemCategoriesData);
       } catch (err) {
         console.error('Failed to load data:', err);
-        setError(err instanceof Error ? err.message : 'Failed to load data');
+        const errorMessage = err instanceof Error ? err.message : 'Failed to load data';
+        setError(errorMessage);
+        
+        // Show user-friendly error message
+        alert(`Unable to connect to Kilimostat API: ${errorMessage}\n\nPlease check:\n1. Internet connection\n2. API server status\n3. Network firewall settings\n\nUsing local data for now.`);
       } finally {
         setLoading(false);
       }

@@ -1,4 +1,4 @@
-const API_BASE_URL = 'https://10.101.100.251/en/kilimostat-api';
+const API_BASE_URL = 'https://kilimostat.kilimo.go.ke/en/kilimostat-api';
 
 export interface ApiEndpoints {
   counties: string;
@@ -134,14 +134,17 @@ class ApiService {
 
   private async request<T>(url: string): Promise<T[]> {
     try {
+      console.log('Making API request to:', url);
       const response = await fetch(url);
       if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        console.error(`API request failed: ${response.status} ${response.statusText}`);
+        throw new Error(`API Error ${response.status}: ${response.statusText}`);
       }
       const data = await response.json();
+      console.log('API response received:', data);
       return Array.isArray(data) ? data : data.results || [];
     } catch (error) {
-      console.error(`Failed to fetch data from ${url}:`, error);
+      console.error(`Network error fetching from ${url}:`, error);
       throw error;
     }
   }
@@ -216,32 +219,42 @@ class ApiService {
   }
 
   async getKilimoData(params: KilimoDataParams): Promise<KilimoDataRecord[]> {
-    const endpoints = await this.getEndpoints();
-    const searchParams = new URLSearchParams();
-    
-    if (params.counties?.length) {
-      params.counties.forEach(id => searchParams.append('county', id.toString()));
-    }
-    if (params.elements?.length) {
-      params.elements.forEach(id => searchParams.append('element', id.toString()));
-    }
-    if (params.items?.length) {
-      params.items.forEach(id => searchParams.append('item', id.toString()));
-    }
-    if (params.years?.length) {
-      params.years.forEach(year => searchParams.append('refyear', year.toString()));
-    }
-    if (params.subdomain) {
-      searchParams.append('subdomain', params.subdomain.toString());
-    }
-
-    const url = `${endpoints.kilimodata}?${searchParams.toString()}`;
     try {
+      const endpoints = await this.getEndpoints();
+      const searchParams = new URLSearchParams();
+      
+      if (params.counties?.length) {
+        params.counties.forEach(id => searchParams.append('county', id.toString()));
+      }
+      if (params.elements?.length) {
+        params.elements.forEach(id => searchParams.append('element', id.toString()));
+      }
+      if (params.items?.length) {
+        params.items.forEach(id => searchParams.append('item', id.toString()));
+      }
+      if (params.years?.length) {
+        params.years.forEach(year => searchParams.append('refyear', year.toString()));
+      }
+      if (params.subdomain) {
+        searchParams.append('subdomain', params.subdomain.toString());
+      }
+
+      const url = `${endpoints.kilimodata}?${searchParams.toString()}`;
       console.log('Fetching data from:', url);
+      
       const response = await fetch(url);
       if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        console.error(`API Error: ${response.status} ${response.statusText}`);
+        if (response.status === 404) {
+          throw new Error('Data endpoint not found. Please check if the API is available.');
+        } else if (response.status === 500) {
+          throw new Error('Server error. Please try again later.');
+        } else if (response.status === 403) {
+          throw new Error('Access denied. Please check your permissions.');
+        }
+        throw new Error(`API Error ${response.status}: ${response.statusText}`);
       }
+      
       const data = await response.json();
       console.log('API Response:', data);
       
@@ -257,7 +270,7 @@ class ApiService {
         return [];
       }
     } catch (error) {
-      console.error(`Failed to fetch kilimo data from ${url}:`, error);
+      console.error('Failed to fetch kilimo data:', error);
       // Return mock data for testing
       return this.getMockKilimoData(params);
     }
