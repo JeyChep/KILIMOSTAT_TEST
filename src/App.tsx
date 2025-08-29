@@ -116,6 +116,9 @@ function App() {
         )}
       </main>
       )}
+      
+      {/* API Debug Panel - only show in development */}
+      {import.meta.env.DEV && <ApiDebugPanel />}
     </div>
   );
 }

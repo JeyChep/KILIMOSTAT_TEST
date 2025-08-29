@@ -120,15 +120,32 @@ class ApiService {
     }
 
     try {
+      console.log('Fetching API endpoints from:', API_BASE_URL);
       const response = await fetch(API_BASE_URL + '/');
       if (!response.ok) {
-        throw new Error(`Failed to fetch endpoints: ${response.statusText}`);
+        console.error('Endpoints request failed:', response.status, response.statusText);
+        throw new Error(`Failed to fetch API endpoints: ${response.status} ${response.statusText}`);
       }
       this.endpoints = await response.json();
+      console.log('API endpoints loaded:', this.endpoints);
       return this.endpoints!;
     } catch (error) {
       console.error('Failed to fetch API endpoints:', error);
-      throw error;
+      // Provide fallback endpoints for development
+      console.log('Using fallback endpoints...');
+      this.endpoints = {
+        counties: `${API_BASE_URL}/counties/`,
+        institutions: `${API_BASE_URL}/institutions/`,
+        subsectors: `${API_BASE_URL}/subsectors/`,
+        domains: `${API_BASE_URL}/domains/`,
+        subdomains: `${API_BASE_URL}/subdomains/`,
+        elements: `${API_BASE_URL}/elements/`,
+        itemcategories: `${API_BASE_URL}/itemcategories/`,
+        items: `${API_BASE_URL}/items/`,
+        units: `${API_BASE_URL}/units/`,
+        kilimodata: `${API_BASE_URL}/kilimodata/`
+      };
+      return this.endpoints;
     }
   }
 
