@@ -315,7 +315,7 @@ const DomainGrid: React.FC<DomainGridProps> = ({ loading: externalLoading, onDom
         {/* Header */}
         <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-200">
           <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
+            <div className="w-8 h-8 bg-green-600 rounded-full flex items-center justify-center shadow-md">
               <span className="text-white text-sm">📊</span>
             </div>
             <h1 className="text-2xl font-semibold text-gray-900">{selectedSubdomain.name}</h1>
@@ -345,9 +345,11 @@ const DomainGrid: React.FC<DomainGridProps> = ({ loading: externalLoading, onDom
         </div>
 
         {/* Data Selection Interface */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          {/* Left side: 2x2 grid for data selection */}
+          <div className="lg:col-span-3 grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Counties */}
-          <div className="bg-white border border-gray-200 rounded-lg">
+            <div className="bg-white border border-green-200 rounded-lg shadow-lg">
             <div className="px-4 py-3 border-b border-gray-200">
               <div className="flex items-center justify-between">
                 <h3 className="text-sm font-medium text-gray-900">COUNTIES</h3>
@@ -371,7 +373,7 @@ const DomainGrid: React.FC<DomainGridProps> = ({ loading: externalLoading, onDom
                       type="checkbox"
                       checked={selectedCounties.has(county.id)}
                       onChange={() => toggleSelection(county.id, selectedCounties, setSelectedCounties)}
-                      className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                      className="rounded border-gray-300 text-green-600 focus:ring-green-500"
                     />
                     <span className="text-sm text-gray-700">{county.name}</span>
                   </label>
@@ -386,13 +388,13 @@ const DomainGrid: React.FC<DomainGridProps> = ({ loading: externalLoading, onDom
               <div className="flex justify-between mt-4 pt-3 border-t border-gray-200">
                 <button
                   onClick={() => selectAll(filteredCounties, selectedCounties, setSelectedCounties)}
-                  className="text-sm text-blue-600 hover:text-blue-800"
+                  className="text-sm text-green-600 hover:text-green-800"
                 >
                   Select All
                 </button>
                 <button
                   onClick={() => clearAll(setSelectedCounties)}
-                  className="text-sm text-blue-600 hover:text-blue-800"
+                  className="text-sm text-green-600 hover:text-green-800"
                 >
                   Clear All
                 </button>
@@ -401,7 +403,7 @@ const DomainGrid: React.FC<DomainGridProps> = ({ loading: externalLoading, onDom
           </div>
 
           {/* Elements */}
-          <div className="bg-white border border-gray-200 rounded-lg">
+            <div className="bg-white border border-green-200 rounded-lg shadow-lg">
             <div className="px-4 py-3 border-b border-gray-200">
               <h3 className="text-sm font-medium text-gray-900">ELEMENTS</h3>
             </div>
@@ -422,7 +424,7 @@ const DomainGrid: React.FC<DomainGridProps> = ({ loading: externalLoading, onDom
                       type="checkbox"
                       checked={selectedElements.has(element.id)}
                       onChange={() => toggleSelection(element.id, selectedElements, setSelectedElements)}
-                      className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                      className="rounded border-gray-300 text-green-600 focus:ring-green-500"
                     />
                     <span className="text-sm text-gray-700">{element.name}</span>
                   </label>
@@ -434,25 +436,22 @@ const DomainGrid: React.FC<DomainGridProps> = ({ loading: externalLoading, onDom
               <div className="flex justify-between mt-4 pt-3 border-t border-gray-200">
                 <button
                   onClick={() => selectAll(filteredElements, selectedElements, setSelectedElements)}
-                  className="text-sm text-blue-600 hover:text-blue-800"
+                  className="text-sm text-green-600 hover:text-green-800"
                 >
                   Select All
                 </button>
                 <button
                   onClick={() => clearAll(setSelectedElements)}
-                  className="text-sm text-blue-600 hover:text-blue-800"
+                  className="text-sm text-green-600 hover:text-green-800"
                 >
                   Clear All
                 </button>
               </div>
             </div>
           </div>
-        </div>
 
-        {/* Items and Years */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
           {/* Items */}
-          <div className="bg-white border border-gray-200 rounded-lg">
+            <div className="bg-white border border-green-200 rounded-lg shadow-lg">
             <div className="px-4 py-3 border-b border-gray-200">
               <div className="flex items-center justify-between">
                 <h3 className="text-sm font-medium text-gray-900">
@@ -467,7 +466,7 @@ const DomainGrid: React.FC<DomainGridProps> = ({ loading: externalLoading, onDom
                     setSelectedItemCategories(new Set());
                     setItemFilter(''); // Clear item filter when going back
                   }}
-                  className="mt-2 text-xs text-blue-600 hover:text-blue-800 flex items-center"
+                  className="mt-2 text-xs text-green-600 hover:text-green-800 flex items-center"
                 >
                   <ChevronLeft className="h-3 w-3 mr-1" />
                   Back to Categories
@@ -495,7 +494,7 @@ const DomainGrid: React.FC<DomainGridProps> = ({ loading: externalLoading, onDom
                         setShowItemCategories(false);
                         setItemFilter(''); // Clear item filter when switching to items view
                       }}
-                      className="w-full flex items-center space-x-2 p-2 hover:bg-gray-50 rounded-md text-left"
+                      className="w-full flex items-center space-x-2 p-2 hover:bg-green-50 rounded-md text-left"
                     >
                       <ChevronRight className="h-4 w-4 text-gray-400" />
                       <span className="text-sm text-gray-700">{category.name}</span>
@@ -511,7 +510,7 @@ const DomainGrid: React.FC<DomainGridProps> = ({ loading: externalLoading, onDom
                         type="checkbox"
                         checked={selectedItems.has(item.id)}
                         onChange={() => toggleSelection(item.id, selectedItems, setSelectedItems)}
-                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                        className="rounded border-gray-300 text-green-600 focus:ring-green-500"
                       />
                       <span className="text-sm text-gray-700">{item.name}</span>
                     </label>
@@ -528,7 +527,7 @@ const DomainGrid: React.FC<DomainGridProps> = ({ loading: externalLoading, onDom
                         setShowItemCategories(true);
                         setSelectedItemCategories(new Set());
                       }}
-                      className="text-blue-600 hover:text-blue-800 ml-1"
+                      className="text-green-600 hover:text-green-800 ml-1"
                     >
                       Go back to categories
                     </button>
@@ -546,13 +545,13 @@ const DomainGrid: React.FC<DomainGridProps> = ({ loading: externalLoading, onDom
                   <>
                     <button
                       onClick={() => selectAll(getFilteredItems(), selectedItems, setSelectedItems)}
-                      className="text-sm text-blue-600 hover:text-blue-800"
+                      className="text-sm text-green-600 hover:text-green-800"
                     >
                       Select All
                     </button>
                     <button
                       onClick={() => clearAll(setSelectedItems)}
-                      className="text-sm text-blue-600 hover:text-blue-800"
+                      className="text-sm text-green-600 hover:text-green-800"
                     >
                       Clear All
                     </button>
@@ -568,7 +567,7 @@ const DomainGrid: React.FC<DomainGridProps> = ({ loading: externalLoading, onDom
           </div>
 
           {/* Years */}
-          <div className="bg-white border border-gray-200 rounded-lg">
+            <div className="bg-white border border-green-200 rounded-lg shadow-lg">
             <div className="px-4 py-3 border-b border-gray-200">
               <h3 className="text-sm font-medium text-gray-900">YEARS</h3>
             </div>
@@ -589,7 +588,7 @@ const DomainGrid: React.FC<DomainGridProps> = ({ loading: externalLoading, onDom
                       type="checkbox"
                       checked={selectedYears.has(year)}
                       onChange={() => toggleSelection(year, selectedYears, setSelectedYears)}
-                      className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                      className="rounded border-gray-300 text-green-600 focus:ring-green-500"
                     />
                     <span className="text-sm text-gray-700">{year}</span>
                   </label>
@@ -601,60 +600,69 @@ const DomainGrid: React.FC<DomainGridProps> = ({ loading: externalLoading, onDom
               <div className="flex justify-between mt-4 pt-3 border-t border-gray-200">
                 <button
                   onClick={() => selectAll(filteredYears.map(y => ({ id: y })), selectedYears, setSelectedYears)}
-                  className="text-sm text-blue-600 hover:text-blue-800"
+                  className="text-sm text-green-600 hover:text-green-800"
                 >
                   Select All
                 </button>
                 <button
                   onClick={() => clearAll(setSelectedYears)}
-                  className="text-sm text-blue-600 hover:text-blue-800"
+                  className="text-sm text-green-600 hover:text-green-800"
                 >
                   Clear All
                 </button>
               </div>
             </div>
           </div>
-        </div>
 
-        {/* Sidebar Info Cards */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-8">
-          <div className="bg-white border border-gray-200 rounded-lg p-4">
+          </div>
+
+          {/* Right sidebar: Info Cards */}
+          <div className="space-y-6">
+            {/* Domain Details Card */}
+            <div className="bg-white border border-green-200 rounded-lg shadow-lg p-6">
             <h3 className="text-lg font-medium text-gray-900 mb-2">{selectedSubdomain.name}</h3>
             <p className="text-sm text-gray-600 mb-3">
               {selectedSubdomain.description || 'Agricultural and livestock statistics covering various indicators and measurements.'}
             </p>
-            <button className="text-blue-600 hover:text-blue-800 text-sm">Show More</button>
+              <button className="text-green-600 hover:text-green-800 text-sm font-medium">Show More</button>
           </div>
 
-          <div className="bg-white border border-gray-200 rounded-lg p-4">
+            {/* Last Update Card */}
+            <div className="bg-white border border-green-200 rounded-lg shadow-lg p-6">
             <h4 className="text-sm font-medium text-gray-900 mb-2">Last Update</h4>
-            <p className="text-sm text-gray-600">June 11, 2025</p>
+              <p className="text-sm text-gray-600 mb-2">June 11, 2025</p>
+              <div className="w-full bg-gray-200 rounded-full h-2">
+                <div className="bg-green-500 h-2 rounded-full w-3/4"></div>
+              </div>
+              <p className="text-xs text-gray-500 mt-2">Data freshness: 75%</p>
           </div>
 
-          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+            {/* Bulk Downloads Card */}
+            <div className="bg-green-50 border border-green-200 rounded-lg shadow-lg p-6">
             <h4 className="text-sm font-medium text-gray-900 mb-3 flex items-center">
-              <Download className="h-4 w-4 mr-2" />
+                <Download className="h-4 w-4 mr-2 text-green-600" />
               Bulk Downloads
             </h4>
             <div className="space-y-2">
               <div className="flex justify-between items-center">
-                <button className="text-blue-600 hover:text-blue-800 text-sm">All Data</button>
+                  <button className="text-green-600 hover:text-green-800 text-sm font-medium">All Data</button>
                 <span className="text-xs text-gray-500">23.9 MB</span>
               </div>
               <div className="flex justify-between items-center">
-                <button className="text-blue-600 hover:text-blue-800 text-sm">All Data Normalized</button>
+                  <button className="text-green-600 hover:text-green-800 text-sm font-medium">All Data Normalized</button>
                 <span className="text-xs text-gray-500">32.33 MB</span>
               </div>
               <div className="flex justify-between items-center">
-                <button className="text-blue-600 hover:text-blue-800 text-sm">Kenya</button>
+                  <button className="text-green-600 hover:text-green-800 text-sm font-medium">Kenya</button>
                 <span className="text-xs text-gray-500">4.1 MB</span>
               </div>
             </div>
           </div>
+          </div>
         </div>
 
         {/* Output Options */}
-        <div className="mt-8 bg-white border border-gray-200 rounded-lg p-6">
+        <div className="mt-8 bg-white border border-green-200 rounded-lg shadow-lg p-6">
           <h3 className="text-lg font-medium text-gray-900 mb-6">Output Options</h3>
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
             {/* Output Type */}
@@ -668,7 +676,7 @@ const DomainGrid: React.FC<DomainGridProps> = ({ loading: externalLoading, onDom
                     value="table"
                     checked={outputType === 'table'}
                     onChange={(e) => setOutputType(e.target.value as 'table')}
-                    className="mr-2 text-blue-600 focus:ring-blue-500"
+                    className="mr-2 text-green-600 focus:ring-green-500"
                   />
                   <span className="text-sm text-gray-700">Table</span>
                 </label>
@@ -679,7 +687,7 @@ const DomainGrid: React.FC<DomainGridProps> = ({ loading: externalLoading, onDom
                     value="pivot"
                     checked={outputType === 'pivot'}
                     onChange={(e) => setOutputType(e.target.value as 'pivot')}
-                    className="mr-2 text-blue-600 focus:ring-blue-500"
+                    className="mr-2 text-green-600 focus:ring-green-500"
                   />
                   <span className="text-sm text-gray-700">Pivot</span>
                 </label>
@@ -697,7 +705,7 @@ const DomainGrid: React.FC<DomainGridProps> = ({ loading: externalLoading, onDom
                     value="csv"
                     checked={fileType === 'csv'}
                     onChange={(e) => setFileType(e.target.value as 'csv')}
-                    className="mr-2 text-blue-600 focus:ring-blue-500"
+                    className="mr-2 text-green-600 focus:ring-green-500"
                   />
                   <span className="text-sm text-gray-700">CSV</span>
                 </label>
@@ -708,7 +716,7 @@ const DomainGrid: React.FC<DomainGridProps> = ({ loading: externalLoading, onDom
                     value="xls"
                     checked={fileType === 'xls'}
                     onChange={(e) => setFileType(e.target.value as 'xls')}
-                    className="mr-2 text-blue-600 focus:ring-blue-500"
+                    className="mr-2 text-green-600 focus:ring-green-500"
                   />
                   <span className="text-sm text-gray-700">XLS</span>
                 </label>
@@ -726,7 +734,7 @@ const DomainGrid: React.FC<DomainGridProps> = ({ loading: externalLoading, onDom
                     value="none"
                     checked={thousandSeparator === 'none'}
                     onChange={(e) => setThousandSeparator(e.target.value as 'none')}
-                    className="mr-2 text-blue-600 focus:ring-blue-500"
+                    className="mr-2 text-green-600 focus:ring-green-500"
                   />
                   <span className="text-sm text-gray-700">None</span>
                 </label>
@@ -737,7 +745,7 @@ const DomainGrid: React.FC<DomainGridProps> = ({ loading: externalLoading, onDom
                     value="comma"
                     checked={thousandSeparator === 'comma'}
                     onChange={(e) => setThousandSeparator(e.target.value as 'comma')}
-                    className="mr-2 text-blue-600 focus:ring-blue-500"
+                    className="mr-2 text-green-600 focus:ring-green-500"
                   />
                   <span className="text-sm text-gray-700">Comma</span>
                 </label>
@@ -748,7 +756,7 @@ const DomainGrid: React.FC<DomainGridProps> = ({ loading: externalLoading, onDom
                     value="period"
                     checked={thousandSeparator === 'period'}
                     onChange={(e) => setThousandSeparator(e.target.value as 'period')}
-                    className="mr-2 text-blue-600 focus:ring-blue-500"
+                    className="mr-2 text-green-600 focus:ring-green-500"
                   />
                   <span className="text-sm text-gray-700">Period</span>
                 </label>
@@ -764,7 +772,7 @@ const DomainGrid: React.FC<DomainGridProps> = ({ loading: externalLoading, onDom
                     type="checkbox"
                     checked={includeFlags}
                     onChange={(e) => setIncludeFlags(e.target.checked)}
-                    className="mr-2 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    className="mr-2 rounded border-gray-300 text-green-600 focus:ring-green-500"
                   />
                   <span className="text-sm text-gray-700">Flags</span>
                 </label>
@@ -773,7 +781,7 @@ const DomainGrid: React.FC<DomainGridProps> = ({ loading: externalLoading, onDom
                     type="checkbox"
                     checked={includeNotes}
                     onChange={(e) => setIncludeNotes(e.target.checked)}
-                    className="mr-2 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    className="mr-2 rounded border-gray-300 text-green-600 focus:ring-green-500"
                   />
                   <span className="text-sm text-gray-700">Notes</span>
                 </label>
@@ -782,7 +790,7 @@ const DomainGrid: React.FC<DomainGridProps> = ({ loading: externalLoading, onDom
                     type="checkbox"
                     checked={includeCodes}
                     onChange={(e) => setIncludeCodes(e.target.checked)}
-                    className="mr-2 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    className="mr-2 rounded border-gray-300 text-green-600 focus:ring-green-500"
                   />
                   <span className="text-sm text-gray-700">Codes</span>
                 </label>
@@ -791,7 +799,7 @@ const DomainGrid: React.FC<DomainGridProps> = ({ loading: externalLoading, onDom
                     type="checkbox"
                     checked={includeUnits}
                     onChange={(e) => setIncludeUnits(e.target.checked)}
-                    className="mr-2 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    className="mr-2 rounded border-gray-300 text-green-600 focus:ring-green-500"
                   />
                   <span className="text-sm text-gray-700">Units</span>
                 </label>
@@ -800,7 +808,7 @@ const DomainGrid: React.FC<DomainGridProps> = ({ loading: externalLoading, onDom
                     type="checkbox"
                     checked={includeNullValues}
                     onChange={(e) => setIncludeNullValues(e.target.checked)}
-                    className="mr-2 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    className="mr-2 rounded border-gray-300 text-green-600 focus:ring-green-500"
                   />
                   <span className="text-sm text-gray-700">Null Values</span>
                 </label>
@@ -814,7 +822,7 @@ const DomainGrid: React.FC<DomainGridProps> = ({ loading: externalLoading, onDom
           <button
             onClick={handleShowData}
             disabled={selectedCounties.size === 0 || selectedElements.size === 0 || selectedYears.size === 0}
-            className="flex items-center space-x-2 px-8 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+            className="flex items-center space-x-2 px-8 py-3 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors shadow-lg"
           >
             <span>🔍</span>
             <span>Show Data</span>
@@ -822,7 +830,7 @@ const DomainGrid: React.FC<DomainGridProps> = ({ loading: externalLoading, onDom
           <button
             onClick={handleDownloadData}
             disabled={downloading || selectedCounties.size === 0 || selectedElements.size === 0 || selectedYears.size === 0}
-            className="flex items-center space-x-2 px-8 py-3 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+            className="flex items-center space-x-2 px-8 py-3 bg-green-700 text-white rounded-md hover:bg-green-800 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors shadow-lg"
           >
             {downloading ? (
               <>
