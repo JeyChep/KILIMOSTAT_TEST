@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import Header from './components/Header';
 import DefinitionsStandards from './components/DefinitionsStandards';
-import DomainGrid from './components/DomainGrid';
+import { DomainGrid } from './components/DomainGrid';
 import DomainsTable from './components/DomainsTable';
 import DataTable from './components/DataTable';
 import SubsectorTabs from './components/SubsectorTabs';
