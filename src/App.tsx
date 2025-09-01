@@ -1,5 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import Header from './components/Header';
+import ApiDebugPanel from './components/ApiDebugPanel';
 import DefinitionsStandards from './components/DefinitionsStandards';
 import DomainGrid from './components/DomainGrid';
 import DomainsTable from './components/DomainsTable';
