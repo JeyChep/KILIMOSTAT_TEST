@@ -406,16 +406,18 @@ class ApiService {
       const items = params.items || [1, 2, 3];
       const years = params.years || [2023, 2024];
       
+      // Fetch element data once outside the loops
+      const elementData = await this.getElements();
+      
       let idCounter = 1;
       
-      counties.forEach(countyId => {
-        elements.forEach(elementId => {
+      for (const countyId of counties) {
+        for (const elementId of elements) {
           const relevantItems = items.length > 0 ? items : [1, 2, 3];
-          relevantItems.forEach(itemId => {
-            years.forEach(year => {
+          for (const itemId of relevantItems) {
+            for (const year of years) {
               // Generate realistic values based on element type
               let value: string;
-              const elementData = await this.getElements();
               const element = elementData.find(e => e.id === elementId);
               
               if (element?.name.includes('Area')) {
@@ -446,10 +448,10 @@ class ApiService {
                 flag: Math.random() > 0.8 ? 1 : 0,
                 source: 1
               });
-            });
-          });
-        });
-      });
+            }
+          }
+        }
+      }
       
       return mockData;
     }
