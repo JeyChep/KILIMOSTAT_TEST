@@ -5,7 +5,6 @@ import DomainGrid from './components/DomainGrid';
 import DomainsTable from './components/DomainsTable';
 import DataTable from './components/DataTable';
 import SubsectorTabs from './components/SubsectorTabs';
-import ApiDebugPanel from './components/ApiDebugPanel';
 import { useDomains } from './hooks/useDomains';
 import { Domain } from './services/apiService';
 
