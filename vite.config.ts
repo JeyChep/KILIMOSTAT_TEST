@@ -1,10 +1,19 @@
-import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
 
-// https://vitejs.dev/config/
+// Vite dev server on port 3000 + proxy to your internal HTTPS API.
+// secure:false lets the proxy ignore self-signed/invalid certs on 10.101.100.251.
 export default defineConfig({
   plugins: [react()],
-  optimizeDeps: {
-    exclude: ['lucide-react'],
+  server: {
+    port: 3000,
+    proxy: {
+      '/api': {
+        target: 'https://10.101.100.251',
+        changeOrigin: true,
+        secure: false,
+        rewrite: (path) => path.replace(/^\/api/, ''),
+      },
+    },
   },
-});
+})
