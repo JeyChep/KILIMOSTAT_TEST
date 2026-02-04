@@ -5,6 +5,7 @@ import DomainGrid from './components/DomainGrid';
 import DomainsTable from './components/DomainsTable';
 import DataTable from './components/DataTable';
 import SubsectorTabs from './components/SubsectorTabs';
+import CountyMap from './components/CountyMap';
 import { useDomains } from './hooks/useDomains';
 import { Domain } from './services/apiService';
 
@@ -13,6 +14,7 @@ function App() {
   const [activeMainTab, setActiveMainTab] = useState('data');
   const [activeTab, setActiveTab] = useState('domains');
   const [selectedDomain, setSelectedDomain] = useState<Domain | null>(null);
+  const [selectedCounty, setSelectedCounty] = useState<string | undefined>(undefined);
 
   const handleSearchChange = useCallback((query: string) => {
     updateFilters({ query });
@@ -36,6 +38,11 @@ function App() {
   const handleAddDomain = useCallback(() => {
     console.log('Add domain functionality to be implemented');
     // Implement add domain logic
+  }, []);
+
+  const handleCountySelect = useCallback((countyName: string) => {
+    setSelectedCounty(countyName);
+    console.log('Selected county:', countyName);
   }, []);
 
   if (error) {
@@ -84,6 +91,26 @@ function App() {
           />
         ) : activeTab === 'table' ? (
           <DomainsTable />
+        ) : activeTab === 'map' ? (
+          <div>
+            <div className="mb-6 bg-white p-4 rounded-lg shadow">
+              <h2 className="text-xl font-semibold text-gray-900 mb-2">County Selection</h2>
+              <p className="text-gray-600 mb-2">
+                Click on any county on the map to select it. Selected counties are highlighted in blue.
+              </p>
+              {selectedCounty && (
+                <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
+                  <p className="text-sm font-medium text-blue-900">
+                    Selected County: <span className="font-bold">{selectedCounty}</span>
+                  </p>
+                </div>
+              )}
+            </div>
+            <CountyMap
+              selectedCounty={selectedCounty}
+              onCountySelect={handleCountySelect}
+            />
+          </div>
         ) : (
           <DataTable
             domains={domains as any[]}

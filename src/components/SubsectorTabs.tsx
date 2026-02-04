@@ -9,6 +9,7 @@ const SubsectorTabs: React.FC<SubsectorTabsProps> = ({ activeTab, onTabChange })
   const tabs = [
     { id: 'domains', label: 'DOMAINS' },
     { id: 'table', label: 'DOMAINS TABLE' },
+    { id: 'map', label: 'COUNTY MAP' },
   ];
 
   return (
