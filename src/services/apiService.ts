@@ -206,9 +206,25 @@ class ApiService {
     if (this.inflight.has(key)) {
       return this.inflight.get(key) as Promise<T[]>;
     }
+    const lsKey = `kilimostat_cache_${key}`;
+    const stored = localStorage.getItem(lsKey);
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored) as T[];
+        this.cache.set(key, parsed);
+        return parsed;
+      } catch {
+        localStorage.removeItem(lsKey);
+      }
+    }
     const promise = fetcher().then(data => {
       this.cache.set(key, data);
       this.inflight.delete(key);
+      try {
+        localStorage.setItem(lsKey, JSON.stringify(data));
+      } catch {
+        // localStorage quota exceeded — skip persisting
+      }
       return data;
     });
     this.inflight.set(key, promise);
@@ -308,26 +324,14 @@ class ApiService {
       ? new Set(params.years.map(y => y.toString()))
       : null;
 
-    const searchParams = new URLSearchParams();
-
-    if (params.counties?.length) {
-      params.counties.forEach(id => searchParams.append('county', id.toString()));
-    }
-    if (params.elements?.length) {
-      params.elements.forEach(id => searchParams.append('element', id.toString()));
-    }
-    if (params.items?.length) {
-      params.items.forEach(id => searchParams.append('item', id.toString()));
-    }
-    if (params.years?.length) {
-      params.years.forEach(year => searchParams.append('refyear', year.toString()));
-    }
+    const subdomainParam = new URLSearchParams();
     if (params.subdomain) {
-      searchParams.append('subdomain', params.subdomain.toString());
+      subdomainParam.append('subdomain', params.subdomain.toString());
     }
 
-    const url = `${endpoints.kilimodata_pagination}?${searchParams.toString()}`;
-    const allData = await this.fetchAllPages<KilimoDataRecord>(url);
+    const url = `${endpoints.kilimodata_pagination}?${subdomainParam.toString()}`;
+    const cacheKey = `kilimodata_subdomain_${params.subdomain ?? 'all'}`;
+    const allData = await this.fetchCached<KilimoDataRecord>(cacheKey, () => this.fetchAllPages<KilimoDataRecord>(url));
 
     return allData.filter(record => {
       if (selectedCountyNames && !selectedCountyNames.has(record.county)) return false;
