@@ -1,24 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Search } from 'lucide-react';
+import { apiService, Domain as ApiDomain, SubDomain as ApiSubDomain } from '../services/apiService';
 
-interface Domain {
-  id: number;
-  name: string;
-  code: string;
-  description: string;
-  subsector: string;
-}
-
-interface SubDomain {
-  id: number;
-  name: string;
-  code: string;
-  description: string;
-  domain: number;
-}
-
-interface DomainWithSubdomains extends Domain {
-  subdomains: SubDomain[];
+interface DomainWithSubdomains extends ApiDomain {
+  subdomains: ApiSubDomain[];
 }
 
 const DomainsTable: React.FC = () => {
@@ -31,45 +16,12 @@ const DomainsTable: React.FC = () => {
     const loadData = async () => {
       try {
         setLoading(true);
-        
-        // Load domains and subdomains from CSV files
-        const [domainsResponse, subdomainsResponse] = await Promise.all([
-          fetch('/data/Domain-2025-08-14.csv'),
-          fetch('/data/SubDomain-2025-08-18.csv')
+
+        const [domainsData, subdomainsData] = await Promise.all([
+          apiService.getDomains(),
+          apiService.getSubdomains()
         ]);
 
-        const domainsText = await domainsResponse.text();
-        const subdomainsText = await subdomainsResponse.text();
-
-        // Parse domains CSV
-        const domainLines = domainsText.trim().split('\n');
-        const domainHeaders = domainLines[0].split(',');
-        const domainsData: Domain[] = domainLines.slice(1).map(line => {
-          const values = parseCSVLine(line);
-          return {
-            id: parseInt(values[0]) || 0,
-            name: values[1] || '',
-            code: values[2] || '',
-            description: values[3] || '',
-            subsector: values[4] || ''
-          };
-        });
-
-        // Parse subdomains CSV
-        const subdomainLines = subdomainsText.trim().split('\n');
-        const subdomainHeaders = subdomainLines[0].split(',');
-        const subdomainsData: SubDomain[] = subdomainLines.slice(1).map(line => {
-          const values = parseCSVLine(line);
-          return {
-            id: parseInt(values[0]) || 0,
-            name: values[1] || '',
-            code: values[2] || '',
-            description: values[3] || '',
-            domain: parseInt(values[4]) || 0
-          };
-        });
-
-        // Combine domains with their subdomains
         const domainsWithSubdomains: DomainWithSubdomains[] = domainsData.map(domain => ({
           ...domain,
           subdomains: subdomainsData.filter(subdomain => subdomain.domain === domain.id)
@@ -86,28 +38,6 @@ const DomainsTable: React.FC = () => {
 
     loadData();
   }, []);
-
-  const parseCSVLine = (line: string): string[] => {
-    const result = [];
-    let current = '';
-    let inQuotes = false;
-    
-    for (let i = 0; i < line.length; i++) {
-      const char = line[i];
-      
-      if (char === '"') {
-        inQuotes = !inQuotes;
-      } else if (char === ',' && !inQuotes) {
-        result.push(current.trim());
-        current = '';
-      } else {
-        current += char;
-      }
-    }
-    
-    result.push(current.trim());
-    return result;
-  };
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);

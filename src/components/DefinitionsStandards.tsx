@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ChevronDown, ChevronRight, Search } from 'lucide-react';
-import { dataService } from '../services/dataService';
-import { Abbreviation, County, Flag, Item, ItemCategory, Element, Unit } from '../types';
+import { apiService } from '../services/apiService';
 
 interface DataSection {
   id: string;
@@ -21,28 +20,15 @@ const DefinitionsStandards: React.FC = () => {
       try {
         setLoading(true);
         
-        const [abbreviations, counties, flags, items, itemCategories, elements, units] = await Promise.all([
-          dataService.getAbbreviations(),
-          dataService.getCounties(),
-          dataService.getFlags(),
-          dataService.getItems(),
-          dataService.getItemCategories(),
-          dataService.getElements(),
-          dataService.getUnits()
+        const [counties, elements, items, itemCategories, units] = await Promise.all([
+          apiService.getCounties(),
+          apiService.getElements(),
+          apiService.getItems(),
+          apiService.getItemCategories(),
+          apiService.getUnits()
         ]);
 
         const newSections: DataSection[] = [
-          {
-            id: 'abbreviations',
-            title: 'Abbreviations',
-            data: abbreviations,
-            columns: [
-              { key: 'abbr', label: 'Abbreviation', width: '15%' },
-              { key: 'description', label: 'Description', width: '60%' },
-              { key: 'slug', label: 'Slug', width: '15%' },
-              { key: 'id', label: 'ID', width: '10%' }
-            ]
-          },
           {
             id: 'counties',
             title: 'Counties',
@@ -63,17 +49,6 @@ const DefinitionsStandards: React.FC = () => {
               { key: 'code', label: 'Code', width: '15%' },
               { key: 'description', label: 'Description', width: '25%' },
               { key: 'subdomain', label: 'Subdomain', width: '10%' }
-            ]
-          },
-          {
-            id: 'flags',
-            title: 'Flags',
-            data: flags,
-            columns: [
-              { key: 'id', label: 'ID', width: '15%' },
-              { key: 'name', label: 'Flag Name', width: '50%' },
-              { key: 'code', label: 'Code', width: '20%' },
-              { key: 'description', label: 'Description', width: '15%' }
             ]
           },
           {

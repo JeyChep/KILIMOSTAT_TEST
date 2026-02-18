@@ -1,3 +1,5 @@
+import { apiService } from './apiService';
+
 export interface County {
   id: string;
   name: string;
@@ -52,8 +54,7 @@ const COUNTY_COORDINATES: { [key: string]: [number, number] } = {
   'Migori': [-1.0634, 34.4731],
   'Kisii': [-0.6774, 34.7797],
   'Nyamira': [-0.5669, 34.9340],
-  'Nairobi': [-1.2921, 36.8219],
-  'National': [-0.0236, 37.9062]
+  'Nairobi': [-1.2921, 36.8219]
 };
 
 export class CountyService {
@@ -61,23 +62,15 @@ export class CountyService {
 
   async loadCounties(): Promise<County[]> {
     try {
-      const response = await fetch('/data/County-2025-08-18.csv');
-      const text = await response.text();
-
-      const lines = text.trim().split('\n');
-      const headers = lines[0].split(',');
-
-      this.counties = lines.slice(1).map(line => {
-        const values = line.split(',');
-        const county: County = {
-          id: values[0]?.trim() || '',
-          name: values[1]?.trim() || '',
-          code: values[2]?.trim() || '',
-          coordinates: COUNTY_COORDINATES[values[1]?.trim()] || [0, 37]
-        };
-        return county;
-      }).filter(county => county.name && county.name !== 'National');
-
+      const apiCounties = await apiService.getCounties();
+      this.counties = apiCounties
+        .filter(c => c.name && c.name !== 'National')
+        .map(c => ({
+          id: c.id.toString(),
+          name: c.name,
+          code: c.code,
+          coordinates: COUNTY_COORDINATES[c.name] || [0, 37]
+        }));
       return this.counties;
     } catch (error) {
       console.error('Error loading counties:', error);
