@@ -124,6 +124,8 @@ export interface DataExportOptions {
 
 class ApiService {
   private endpoints: ApiEndpoints | null = null;
+  private cache: Map<string, unknown> = new Map();
+  private inflight: Map<string, Promise<unknown>> = new Map();
 
   private async getEndpoints(): Promise<ApiEndpoints> {
     if (this.endpoints) {
@@ -141,70 +143,116 @@ class ApiService {
     return this.endpoints!;
   }
 
+  private async fetchPage<T>(url: string): Promise<{ results: T[]; next: string | null; count?: number }> {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`API Error ${response.status}: ${response.statusText}`);
+    }
+    const data = await response.json();
+
+    if (Array.isArray(data)) {
+      return { results: data, next: null };
+    } else if (data.results && Array.isArray(data.results)) {
+      return {
+        results: data.results,
+        next: data.next ? toProxyUrl(data.next) : null,
+        count: data.count,
+      };
+    } else {
+      return { results: [data], next: null };
+    }
+  }
+
   private async fetchAllPages<T>(url: string): Promise<T[]> {
-    const results: T[] = [];
-    let nextUrl: string | null = url;
+    const first = await this.fetchPage<T>(url);
+    const allResults: T[] = [...first.results];
 
-    while (nextUrl) {
-      const response = await fetch(nextUrl);
-      if (!response.ok) {
-        throw new Error(`API Error ${response.status}: ${response.statusText}`);
-      }
-      const data = await response.json();
+    if (!first.next) return allResults;
 
-      if (Array.isArray(data)) {
-        results.push(...data);
-        nextUrl = null;
-      } else if (data.results && Array.isArray(data.results)) {
-        results.push(...data.results);
-        nextUrl = data.next ? toProxyUrl(data.next) : null;
-      } else {
-        results.push(data);
-        nextUrl = null;
+    const pageSize = first.results.length;
+    if (!pageSize || !first.count) {
+      let nextUrl: string | null = first.next;
+      while (nextUrl) {
+        const page = await this.fetchPage<T>(nextUrl);
+        allResults.push(...page.results);
+        nextUrl = page.next;
       }
+      return allResults;
     }
 
-    return results;
+    const totalPages = Math.ceil(first.count / pageSize);
+    const baseUrl = new URL(url, window.location.href);
+    baseUrl.searchParams.delete('page');
+
+    const remainingPageNums = Array.from({ length: totalPages - 1 }, (_, i) => i + 2);
+    const remainingFetches = remainingPageNums.map(page => {
+      const pageUrl = new URL(baseUrl.toString());
+      pageUrl.searchParams.set('page', page.toString());
+      return this.fetchPage<T>(pageUrl.toString());
+    });
+
+    const remainingPages = await Promise.all(remainingFetches);
+    for (const page of remainingPages) {
+      allResults.push(...page.results);
+    }
+
+    return allResults;
+  }
+
+  private async fetchCached<T>(key: string, fetcher: () => Promise<T[]>): Promise<T[]> {
+    if (this.cache.has(key)) {
+      return this.cache.get(key) as T[];
+    }
+    if (this.inflight.has(key)) {
+      return this.inflight.get(key) as Promise<T[]>;
+    }
+    const promise = fetcher().then(data => {
+      this.cache.set(key, data);
+      this.inflight.delete(key);
+      return data;
+    });
+    this.inflight.set(key, promise);
+    return promise;
   }
 
   async getCounties(): Promise<County[]> {
     const endpoints = await this.getEndpoints();
-    return this.fetchAllPages<County>(endpoints.counties);
+    return this.fetchCached('counties', () => this.fetchAllPages<County>(endpoints.counties));
   }
 
   async getDomains(): Promise<Domain[]> {
     const endpoints = await this.getEndpoints();
-    return this.fetchAllPages<Domain>(endpoints.domains);
+    return this.fetchCached('domains', () => this.fetchAllPages<Domain>(endpoints.domains));
   }
 
   async getSubdomains(): Promise<SubDomain[]> {
     const endpoints = await this.getEndpoints();
-    return this.fetchAllPages<SubDomain>(endpoints.subdomains);
+    return this.fetchCached('subdomains', () => this.fetchAllPages<SubDomain>(endpoints.subdomains));
   }
 
   async getElements(): Promise<Element[]> {
     const endpoints = await this.getEndpoints();
-    return this.fetchAllPages<Element>(endpoints.elements);
+    return this.fetchCached('elements', () => this.fetchAllPages<Element>(endpoints.elements));
   }
 
   async getItems(): Promise<Item[]> {
     const endpoints = await this.getEndpoints();
-    return this.fetchAllPages<Item>(endpoints.items);
+    return this.fetchCached('items', () => this.fetchAllPages<Item>(endpoints.items));
   }
 
   async getItemCategories(): Promise<ItemCategory[]> {
     const endpoints = await this.getEndpoints();
-    return this.fetchAllPages<ItemCategory>(endpoints.itemcategories);
+    return this.fetchCached('itemcategories', () => this.fetchAllPages<ItemCategory>(endpoints.itemcategories));
   }
 
   async getUnits(): Promise<Unit[]> {
     const endpoints = await this.getEndpoints();
-    return this.fetchAllPages<Unit>(endpoints.units);
+    return this.fetchCached('units', () => this.fetchAllPages<Unit>(endpoints.units));
   }
 
   async getSubsectors(): Promise<Subsector[]> {
     const endpoints = await this.getEndpoints();
-    return this.fetchAllPages<Subsector>(endpoints.subsectors);
+    return this.fetchCached('subsectors', () => this.fetchAllPages<Subsector>(endpoints.subsectors));
   }
 
   async getSubdomainsByDomain(domainId: number): Promise<SubDomain[]> {
@@ -237,29 +285,8 @@ class ApiService {
   }
 
   async getKilimoData(params: KilimoDataParams): Promise<KilimoDataRecord[]> {
-    const endpoints = await this.getEndpoints();
-    const searchParams = new URLSearchParams();
-
-    if (params.counties?.length) {
-      params.counties.forEach(id => searchParams.append('county', id.toString()));
-    }
-    if (params.elements?.length) {
-      params.elements.forEach(id => searchParams.append('element', id.toString()));
-    }
-    if (params.items?.length) {
-      params.items.forEach(id => searchParams.append('item', id.toString()));
-    }
-    if (params.years?.length) {
-      params.years.forEach(year => searchParams.append('refyear', year.toString()));
-    }
-    if (params.subdomain) {
-      searchParams.append('subdomain', params.subdomain.toString());
-    }
-
-    const url = `${endpoints.kilimodata_pagination}?${searchParams.toString()}`;
-    const allData = await this.fetchAllPages<KilimoDataRecord>(url);
-
-    const [allCounties, allElements, allItems] = await Promise.all([
+    const [endpoints, allCounties, allElements, allItems] = await Promise.all([
+      this.getEndpoints(),
       this.getCounties(),
       this.getElements(),
       this.getItems(),
@@ -280,6 +307,27 @@ class ApiService {
     const selectedYears = params.years?.length
       ? new Set(params.years.map(y => y.toString()))
       : null;
+
+    const searchParams = new URLSearchParams();
+
+    if (params.counties?.length) {
+      params.counties.forEach(id => searchParams.append('county', id.toString()));
+    }
+    if (params.elements?.length) {
+      params.elements.forEach(id => searchParams.append('element', id.toString()));
+    }
+    if (params.items?.length) {
+      params.items.forEach(id => searchParams.append('item', id.toString()));
+    }
+    if (params.years?.length) {
+      params.years.forEach(year => searchParams.append('refyear', year.toString()));
+    }
+    if (params.subdomain) {
+      searchParams.append('subdomain', params.subdomain.toString());
+    }
+
+    const url = `${endpoints.kilimodata_pagination}?${searchParams.toString()}`;
+    const allData = await this.fetchAllPages<KilimoDataRecord>(url);
 
     return allData.filter(record => {
       if (selectedCountyNames && !selectedCountyNames.has(record.county)) return false;
