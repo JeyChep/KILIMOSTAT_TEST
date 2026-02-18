@@ -39,18 +39,6 @@ function App() {
     // Implement add domain logic
   }, []);
 
-  if (error) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="text-red-500 text-6xl mb-4">⚠️</div>
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">Something went wrong</h2>
-          <p className="text-gray-600 mb-4">{error}</p>
-          <p className="text-sm text-gray-500">Using mock data for demonstration</p>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -81,7 +69,6 @@ function App() {
 
         {activeTab === 'domains' ? (
           <DomainGrid
-            domains={domains}
             loading={loading}
             onDomainClick={handleDomainClick}
           />
