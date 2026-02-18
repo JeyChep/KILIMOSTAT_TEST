@@ -88,9 +88,6 @@ const DomainGrid: React.FC<DomainGridProps> = ({ loading: externalLoading, onDom
         console.error('Failed to load data:', err);
         const errorMessage = err instanceof Error ? err.message : 'Failed to load data';
         setError(errorMessage);
-        
-        // Show user-friendly error message
-        alert(`Unable to connect to Kilimostat API: ${errorMessage}\n\nPlease check:\n1. Internet connection\n2. API server status\n3. Network firewall settings\n\nUsing local data for now.`);
       } finally {
         setLoading(false);
       }

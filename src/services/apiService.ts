@@ -1,4 +1,13 @@
-const API_BASE_URL = 'https://kilimostat.kilimo.go.ke/en/kilimostat-api';
+const API_BASE_URL = '/kilimostat-api';
+const INTERNAL_API_ORIGIN = 'https://10.101.100.251';
+const INTERNAL_API_PATH_PREFIX = '/en/kilimostat-api';
+
+function toProxyUrl(url: string): string {
+  if (url.startsWith(INTERNAL_API_ORIGIN + INTERNAL_API_PATH_PREFIX)) {
+    return url.replace(INTERNAL_API_ORIGIN + INTERNAL_API_PATH_PREFIX, API_BASE_URL);
+  }
+  return url;
+}
 
 export interface ApiEndpoints {
   counties: string;
@@ -125,7 +134,10 @@ class ApiService {
     if (!response.ok) {
       throw new Error(`Failed to fetch API endpoints: ${response.status} ${response.statusText}`);
     }
-    this.endpoints = await response.json();
+    const raw = await response.json();
+    this.endpoints = Object.fromEntries(
+      Object.entries(raw).map(([k, v]) => [k, toProxyUrl(v as string)])
+    ) as ApiEndpoints;
     return this.endpoints!;
   }
 
@@ -145,7 +157,7 @@ class ApiService {
         nextUrl = null;
       } else if (data.results && Array.isArray(data.results)) {
         results.push(...data.results);
-        nextUrl = data.next || null;
+        nextUrl = data.next ? toProxyUrl(data.next) : null;
       } else {
         results.push(data);
         nextUrl = null;
