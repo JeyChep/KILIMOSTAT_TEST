@@ -257,7 +257,37 @@ class ApiService {
     }
 
     const url = `${endpoints.kilimodata_pagination}?${searchParams.toString()}`;
-    return this.fetchAllPages<KilimoDataRecord>(url);
+    const allData = await this.fetchAllPages<KilimoDataRecord>(url);
+
+    const [allCounties, allElements, allItems] = await Promise.all([
+      this.getCounties(),
+      this.getElements(),
+      this.getItems(),
+    ]);
+
+    const selectedCountyNames = params.counties?.length
+      ? new Set(allCounties.filter(c => params.counties!.includes(c.id)).map(c => c.name))
+      : null;
+
+    const selectedElementNames = params.elements?.length
+      ? new Set(allElements.filter(e => params.elements!.includes(e.id)).map(e => e.name))
+      : null;
+
+    const selectedItemNames = params.items?.length
+      ? new Set(allItems.filter(i => params.items!.includes(i.id)).map(i => i.name))
+      : null;
+
+    const selectedYears = params.years?.length
+      ? new Set(params.years.map(y => y.toString()))
+      : null;
+
+    return allData.filter(record => {
+      if (selectedCountyNames && !selectedCountyNames.has(record.county)) return false;
+      if (selectedElementNames && !selectedElementNames.has(record.element)) return false;
+      if (selectedItemNames && !selectedItemNames.has(record.item)) return false;
+      if (selectedYears && !selectedYears.has(record.refyear)) return false;
+      return true;
+    });
   }
 
   async downloadKilimoData(params: KilimoDataParams, options: DataExportOptions): Promise<Blob> {

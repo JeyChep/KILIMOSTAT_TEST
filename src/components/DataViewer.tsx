@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Download, Eye, X, ChevronLeft, ChevronRight } from 'lucide-react';
-import { apiService, KilimoDataRecord, DataExportOptions, County, Element, Item, Unit } from '../services/apiService';
+import { Eye, X, ChevronLeft, ChevronRight } from 'lucide-react';
+import { apiService, KilimoDataRecord } from '../services/apiService';
 
 interface DataViewerProps {
   selectedCounties: Set<number>;
@@ -24,34 +24,8 @@ const DataViewer: React.FC<DataViewerProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [counties, setCounties] = useState<County[]>([]);
-  const [elements, setElements] = useState<Element[]>([]);
-  const [items, setItems] = useState<Item[]>([]);
-  const [units, setUnits] = useState<Unit[]>([]);
-  
+
   const itemsPerPage = 50;
-
-  useEffect(() => {
-    const loadReferenceData = async () => {
-      try {
-        const [countiesData, elementsData, itemsData, unitsData] = await Promise.all([
-          apiService.getCounties(),
-          apiService.getElements(),
-          apiService.getItems(),
-          apiService.getUnits()
-        ]);
-        
-        setCounties(countiesData);
-        setElements(elementsData);
-        setItems(itemsData);
-        setUnits(unitsData);
-      } catch (err) {
-        console.error('Failed to load reference data:', err);
-      }
-    };
-
-    loadReferenceData();
-  }, []);
 
   useEffect(() => {
     const loadData = async () => {
@@ -89,25 +63,6 @@ const DataViewer: React.FC<DataViewerProps> = ({
     loadData();
   }, [selectedCounties, selectedElements, selectedItems, selectedYears, subdomainId]);
 
-  const getCountyName = (countyId: number) => {
-    const county = counties.find(c => c.id === countyId);
-    return county?.name || `County ${countyId}`;
-  };
-
-  const getElementName = (elementId: number) => {
-    const element = elements.find(e => e.id === elementId);
-    return element?.name || `Element ${elementId}`;
-  };
-
-  const getItemName = (itemId: number) => {
-    const item = items.find(i => i.id === itemId);
-    return item?.name || `Item ${itemId}`;
-  };
-
-  const getUnitName = (unitId: number) => {
-    const unit = units.find(u => u.id === unitId);
-    return unit?.abbreviation || unit?.name || '';
-  };
 
   const getCurrentPageData = () => {
     const startIndex = (currentPage - 1) * itemsPerPage;
@@ -215,13 +170,13 @@ const DataViewer: React.FC<DataViewerProps> = ({
                       {getCurrentPageData().map((record, index) => (
                         <tr key={record.id || index} className="hover:bg-gray-50">
                           <td className="px-4 py-3 text-sm text-gray-900 border-b border-gray-100">
-                            {getCountyName(record.county)}
+                            {record.county}
                           </td>
                           <td className="px-4 py-3 text-sm text-gray-900 border-b border-gray-100">
-                            {getElementName(record.element)}
+                            {record.element}
                           </td>
                           <td className="px-4 py-3 text-sm text-gray-900 border-b border-gray-100">
-                            {getItemName(record.item)}
+                            {record.item}
                           </td>
                           <td className="px-4 py-3 text-sm text-gray-900 border-b border-gray-100">
                             {record.refyear}
@@ -230,13 +185,13 @@ const DataViewer: React.FC<DataViewerProps> = ({
                             {formatValue(record.value)}
                           </td>
                           <td className="px-4 py-3 text-sm text-gray-600 border-b border-gray-100">
-                            {getUnitName(record.unit) || '-'}
+                            {record.unit || '-'}
                           </td>
                           <td className="px-4 py-3 text-sm text-gray-600 border-b border-gray-100">
                             {record.region}
                           </td>
                           <td className="px-4 py-3 text-sm text-center border-b border-gray-100">
-                            {record.flag && record.flag !== 0 ? (
+                            {record.flag ? (
                               <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                                 {record.flag}
                               </span>
