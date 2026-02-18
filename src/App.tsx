@@ -5,6 +5,7 @@ import DomainGrid from './components/DomainGrid';
 import DomainsTable from './components/DomainsTable';
 import DataTable from './components/DataTable';
 import SubsectorTabs from './components/SubsectorTabs';
+import SelectedIndicators from './components/SelectedIndicators';
 import { useDomains } from './hooks/useDomains';
 import { Domain } from './services/apiService';
 
@@ -53,15 +54,17 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header 
-        searchQuery={filters.query} 
+      <Header
+        searchQuery={filters.query}
         onSearchChange={handleSearchChange}
         activeTab={activeMainTab}
         onTabChange={setActiveMainTab}
       />
-      
+
       {activeMainTab === 'definitions' ? (
         <DefinitionsStandards />
+      ) : activeMainTab === 'indicators' ? (
+        <SelectedIndicators />
       ) : (
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
@@ -71,9 +74,9 @@ function App() {
           </p>
         </div>
 
-        <SubsectorTabs 
-          activeTab={activeTab} 
-          onTabChange={setActiveTab} 
+        <SubsectorTabs
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
         />
 
         {activeTab === 'domains' ? (
@@ -116,7 +119,7 @@ function App() {
         )}
       </main>
       )}
-      
+
     </div>
   );
 }
