@@ -6,6 +6,7 @@ import DomainsTable from './components/DomainsTable';
 import DataTable from './components/DataTable';
 import SubsectorTabs from './components/SubsectorTabs';
 import SelectedIndicators from './components/SelectedIndicators';
+import CompareData from './components/CompareData';
 import { useDomains } from './hooks/useDomains';
 import { Domain } from './services/apiService';
 
@@ -65,6 +66,8 @@ function App() {
         <DefinitionsStandards />
       ) : activeMainTab === 'indicators' ? (
         <SelectedIndicators />
+      ) : activeMainTab === 'compare' ? (
+        <CompareData />
       ) : (
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
