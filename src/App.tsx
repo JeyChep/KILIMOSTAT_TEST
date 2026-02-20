@@ -7,7 +7,6 @@ import DataTable from './components/DataTable';
 import SubsectorTabs from './components/SubsectorTabs';
 import SelectedIndicators from './components/SelectedIndicators';
 import CompareData from './components/CompareData';
-import Rankings from './components/Rankings';
 import { useDomains } from './hooks/useDomains';
 import { Domain } from './services/apiService';
 
@@ -23,32 +22,22 @@ function App() {
 
   const handleDomainClick = useCallback((domain: Domain) => {
     setSelectedDomain(domain);
-    console.log('Selected domain:', domain);
-    // Here you could navigate to a detailed view or open a modal
   }, []);
 
-  const handleImport = useCallback(() => {
-    console.log('Import functionality to be implemented');
-    // Implement import logic
-  }, []);
+  const handleImport = useCallback(() => {}, []);
 
   const handleExport = useCallback(() => {
     exportDomains();
   }, [exportDomains]);
 
-  const handleAddDomain = useCallback(() => {
-    console.log('Add domain functionality to be implemented');
-    // Implement add domain logic
-  }, []);
+  const handleAddDomain = useCallback(() => {}, []);
 
   if (error) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="text-red-500 text-6xl mb-4">⚠️</div>
           <h2 className="text-xl font-semibold text-gray-900 mb-2">Something went wrong</h2>
           <p className="text-gray-600 mb-4">{error}</p>
-          <p className="text-sm text-gray-500">Using mock data for demonstration</p>
         </div>
       </div>
     );
@@ -69,8 +58,6 @@ function App() {
         <SelectedIndicators />
       ) : activeMainTab === 'compare' ? (
         <CompareData />
-      ) : activeMainTab === 'rankings' ? (
-        <Rankings />
       ) : (
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">

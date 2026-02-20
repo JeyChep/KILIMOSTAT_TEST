@@ -1,5 +1,5 @@
 import React from 'react';
-import { Search, Home, Database, TrendingUp, BarChart3, BookOpen, HelpCircle } from 'lucide-react';
+import { Search, Home, Database, TrendingUp, BarChart3, BookOpen } from 'lucide-react';
 import ApiStatus from './ApiStatus';
 
 interface HeaderProps {
@@ -21,12 +21,10 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, onSearchChange, activeTab,
               <NavButton icon={Database} label="Data" active={activeTab === 'data'} onClick={() => onTabChange('data')} />
               <NavButton icon={TrendingUp} label="Selected Indicators" active={activeTab === 'indicators'} onClick={() => onTabChange('indicators')} />
               <NavButton icon={BarChart3} label="Compare Data" active={activeTab === 'compare'} onClick={() => onTabChange('compare')} />
-              <NavButton icon={BarChart3} label="Rankings" active={activeTab === 'rankings'} onClick={() => onTabChange('rankings')} />
               <NavButton icon={BookOpen} label="Definitions and Standards" active={activeTab === 'definitions'} onClick={() => onTabChange('definitions')} />
-              <NavButton icon={HelpCircle} label="FAQ" active={activeTab === 'faq'} onClick={() => onTabChange('faq')} />
             </nav>
           </div>
-          
+
           <div className="flex items-center space-x-4">
             <ApiStatus />
             <div className="flex-1 max-w-md">
