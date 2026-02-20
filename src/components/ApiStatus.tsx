@@ -1,76 +1,31 @@
 import React, { useState, useEffect } from 'react';
-import { Wifi, WifiOff, AlertCircle, CheckCircle } from 'lucide-react';
+import { Wifi, WifiOff, CheckCircle, AlertCircle } from 'lucide-react';
 
-interface ApiStatusProps {
-  className?: string;
-}
-
-const ApiStatus: React.FC<ApiStatusProps> = ({ className = '' }) => {
-  const [apiStatus, setApiStatus] = useState<'checking' | 'online' | 'offline' | 'error'>('online');
-  const [lastChecked, setLastChecked] = useState<Date | null>(null);
-
-  const checkApiStatus = async () => {
-    // Since we're using mock data, always show as online
-    setApiStatus('online');
-    setLastChecked(new Date());
-  };
+const ApiStatus: React.FC<{ className?: string }> = ({ className = '' }) => {
+  const [status, setStatus] = useState<'checking' | 'online' | 'offline'>('checking');
 
   useEffect(() => {
-    checkApiStatus();
+    let cancelled = false;
+    fetch('/kilimostat-api/')
+      .then(r => {
+        if (!cancelled) setStatus(r.ok ? 'online' : 'offline');
+      })
+      .catch(() => {
+        if (!cancelled) setStatus('offline');
+      });
+    return () => { cancelled = true; };
   }, []);
 
-  const getStatusIcon = () => {
-    switch (apiStatus) {
-      case 'checking':
-        return <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>;
-      case 'online':
-        return <CheckCircle className="h-4 w-4 text-green-600" />;
-      case 'offline':
-        return <WifiOff className="h-4 w-4 text-red-600" />;
-      case 'error':
-        return <AlertCircle className="h-4 w-4 text-yellow-600" />;
-      default:
-        return <Wifi className="h-4 w-4 text-gray-400" />;
-    }
-  };
-
-  const getStatusText = () => {
-    switch (apiStatus) {
-      case 'checking':
-        return 'Checking API...';
-      case 'online':
-        return 'Mock Data Mode';
-      case 'offline':
-        return 'Using Mock Data';
-      case 'error':
-        return 'API Error';
-      default:
-        return 'Unknown Status';
-    }
-  };
-
-  const getStatusColor = () => {
-    switch (apiStatus) {
-      case 'online':
-        return 'text-green-600 bg-green-50 border-green-200';
-      case 'offline':
-        return 'text-red-600 bg-red-50 border-red-200';
-      case 'error':
-        return 'text-yellow-600 bg-yellow-50 border-yellow-200';
-      default:
-        return 'text-gray-600 bg-gray-50 border-gray-200';
-    }
-  };
+  const cfg = {
+    checking: { icon: <div className="animate-spin rounded-full h-3.5 w-3.5 border-b-2 border-blue-600" />, text: 'Connecting…', cls: 'text-blue-600 bg-blue-50 border-blue-200' },
+    online:   { icon: <CheckCircle className="h-3.5 w-3.5 text-green-600" />,  text: 'API Online',   cls: 'text-green-600 bg-green-50 border-green-200' },
+    offline:  { icon: <WifiOff className="h-3.5 w-3.5 text-red-500" />,        text: 'API Offline',  cls: 'text-red-600 bg-red-50 border-red-200' },
+  }[status];
 
   return (
-    <div className={`flex items-center space-x-2 px-3 py-2 rounded-md border ${getStatusColor()} ${className}`}>
-      {getStatusIcon()}
-      <span className="text-sm font-medium">{getStatusText()}</span>
-      {lastChecked && (
-        <span className="text-xs opacity-75">
-          Ready
-        </span>
-      )}
+    <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md border text-sm font-medium ${cfg.cls} ${className}`}>
+      {cfg.icon}
+      <span>{cfg.text}</span>
     </div>
   );
 };
